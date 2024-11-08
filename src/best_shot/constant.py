@@ -1,0 +1,5 @@
+TRANSFORMER = "transformer"
+
+LIST_OF_EMBEDDING_GENERATORS = [
+    TRANSFORMER,
+]
