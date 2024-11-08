@@ -4,10 +4,8 @@
 # last locked with the following flags:
 #   pre: false
 #   features: []
-#   all-features: false
+#   all-features: true
 #   with-sources: false
-#   generate-hashes: false
-#   universal: false
 
 -e file:.
 annotated-types==0.7.0
@@ -58,7 +56,7 @@ mpmath==1.3.0
     # via sympy
 networkx==3.4.2
     # via torch
-numpy==2.1.3
+numpy==1.26.4
     # via best-shot
     # via scikit-learn
     # via scipy
@@ -87,7 +85,6 @@ safetensors==0.4.5
 scikit-learn==1.5.2
     # via sentence-transformers
 scipy==1.14.1
-    # via best-shot
     # via scikit-learn
     # via sentence-transformers
 sentence-transformers==3.2.1
@@ -96,13 +93,13 @@ sniffio==1.3.1
     # via anyio
     # via httpx
     # via openai
-sympy==1.13.1
+sympy==1.13.3
     # via torch
 threadpoolctl==3.5.0
     # via scikit-learn
 tokenizers==0.20.3
     # via transformers
-torch==2.5.1
+torch==2.2.2
     # via sentence-transformers
 tqdm==4.67.0
     # via huggingface-hub
@@ -119,5 +116,7 @@ typing-extensions==4.12.2
     # via pydantic
     # via pydantic-core
     # via torch
+ujson==5.10.0
+    # via best-shot
 urllib3==2.2.3
     # via requests
