@@ -35,12 +35,19 @@ class BestShots:
         self.shots = {}
 
     def add(self, shot: Shot, namespace: str):
-        # Adding data to the best shots dataset
         if namespace not in self.shots:
             self.shots[namespace] = {}
         if shot.id not in self.shots[namespace]:
             self.shots[namespace][shot.id] = shot
         self.embedding_storage.add(shot.id, self.embedding_generator.generate_embedding(json.dumps(shot.inputs)), namespace)
+
+    def bulk_add(self, shots: List[Shot], namespace: str):
+        if namespace not in self.shots:
+            self.shots[namespace] = {}
+        for shot in shots:
+            if shot.id not in self.shots[namespace]:
+                self.shots[namespace][shot.id] = shot
+            self.embedding_storage.add(shot.id, self.embedding_generator.generate_embedding(json.dumps(shot.inputs)), namespace)
 
     def remove(self, shot: Shot, namespace: str):
         self.embedding_storage.remove(shot.id, namespace)
