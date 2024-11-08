@@ -48,6 +48,11 @@ class BestShots:
             if shot.id in self.shots[namespace]:
                 del self.shots[namespace][shot.id]
 
+    def remove_all(self, namespace: str):
+        self.embedding_storage.remove_all(namespace)
+        if namespace in self.shots:
+            self.shots[namespace] = {}
+
     def get_best_shots(self, query: str, namespace: str, limit: int):
         query_embedding = self.embedding_generator.generate_embedding(query)
         embeddings = self.embedding_storage.get_namespace_embeddings(namespace)
