@@ -20,6 +20,9 @@ class Store:
     ): ...
 
     @abstractmethod
+    def clear(self, namespace: str): ...
+
+    @abstractmethod
     def list(
         self,
         embedding: list[float],
