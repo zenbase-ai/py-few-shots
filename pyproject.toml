@@ -32,6 +32,15 @@ dev-dependencies = [
     "beartype>=0.19.0",
     "litellm>=1.52.3",
     "trio>=0.27.0",
+    "faiss-cpu>=1.9.0",
+    "weaviate-client>=4.9.3",
+    "qdrant-client>=1.12.1",
+    "pinecone[grpc]>=5.3.1",
+    "pymongo>=4.10.1",
+    "chromadb>=0.5.18",
+    "psycopg>=3.2.3",
+    "pymilvus>=2.4.9",
+    "pyvespa>=0.50.0",
 ]
 
 [tool.hatch.metadata]
