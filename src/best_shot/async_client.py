@@ -80,17 +80,8 @@ class AsyncBestShots:
         data: list[Datum] = (
             [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         )
-        match data:
-            case list():
-                is_ids = isinstance(data[0], str)
-                ids = data if is_ids else [Shot(*datum).id for datum in data]
-                await self.store.remove(ids, namespace)
-            case str() as id:
-                await self.remove([id], namespace)
-            case tuple() as datum:
-                await self.remove([Shot(*datum).id], namespace)
-            case _:
-                raise ValueError(f"Invalid data type: {type(data)}")
+        ids = data if isinstance(data[0], str) else [Shot(*datum).id for datum in data]
+        await self.store.remove(ids, namespace)
 
     async def clear(self, namespace: str = "default"):
         await self.store.clear(namespace)
