@@ -96,14 +96,14 @@ class BestShots:
             [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         )
         match data:
-            case str() as id:
-                self.remove([id], namespace)
-            case tuple() as datum:
-                self.remove([Shot(*datum).id], namespace)
             case list():
                 is_ids = isinstance(data[0], str)
                 ids = data if is_ids else [Shot(*datum).id for datum in data]
                 self.store.remove(ids, namespace)
+            case str() as id:
+                self.remove([id], namespace)
+            case tuple() as datum:
+                self.remove([Shot(*datum).id], namespace)
             case _:
                 raise ValueError(f"Invalid data type: {type(data)}")
 
