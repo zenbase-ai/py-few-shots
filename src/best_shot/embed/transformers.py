@@ -9,5 +9,5 @@ from .base import Embedder
 class TransformersEmbedder(Embedder):
     model: SentenceTransformer
 
-    def embed(self, texts: list[str]) -> list[list[float]]:
-        return self.model.encode(texts).tolist()
+    def embed(self, inputs: list[str]) -> list[list[float]]:
+        return self.model.encode(inputs).tolist()
