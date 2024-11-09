@@ -6,18 +6,14 @@ import ujson
 from best_shot.types import IO, Shot
 
 
+def to_str(value: IO) -> str:
+    if isinstance(value, dict):
+        return ujson.dumps(value)
+    return str(value)
+
+
 def flatten(iterable: Iterable[Iterable]) -> list:
     return list(chain.from_iterable(iterable))
-
-
-def to_str(value: IO) -> str:
-    match value:
-        case str():
-            return value
-        case dict():
-            return ujson.dumps(value)
-        case _:
-            raise ValueError(f"Unsupported value type: {type(value)}")
 
 
 def shots_to_messages(shots: list[Shot]) -> list[dict]:

@@ -1,9 +1,5 @@
 from best_shot.types import Shot
-from best_shot.utils.format import shots_to_messages
-
-
-from best_shot.utils.format import to_str
-import pytest
+from best_shot.utils.format import shots_to_messages, to_str
 
 
 def test_to_str_string():
@@ -13,12 +9,6 @@ def test_to_str_string():
 def test_to_str_dict():
     data = {"key": "value"}
     assert to_str(data) == '{"key":"value"}'
-
-
-def test_to_str_invalid_type():
-    with pytest.raises(ValueError) as exc:
-        to_str(123)
-    assert str(exc.value) == "Unsupported value type: <class 'int'>"
 
 
 def test_shots_to_messages_empty():
