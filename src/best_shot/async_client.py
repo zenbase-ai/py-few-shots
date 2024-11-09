@@ -1,13 +1,10 @@
 from dataclasses import dataclass
-from typing import TypeVar, overload
+from typing import overload
 
-from best_shot.types import Shot, data_key
+from best_shot.types import Shot, data_key, Datum, IO, ShotWithSimilarity, is_io_value
 
 from .embed.base import AsyncEmbedder
-from .store.base import ShotWithSimilarity, AsyncStore
-
-
-Datum = TypeVar("Datum", bound=tuple[dict, dict] | tuple[dict, dict, str])
+from .store.base import AsyncStore
 
 
 @dataclass
@@ -17,22 +14,33 @@ class AsyncBestShots:
 
     @overload
     async def add(
-        self, inputs: dict, outputs: dict, id: str = "", namespace: str = "default"
+        self,
+        inputs: IO,
+        outputs: IO,
+        *,
+        id: str = "",
+        namespace: str = "default",
     ) -> str: ...
 
     @overload
-    async def add(self, data: list[Datum], namespace: str = "default") -> list[str]: ...
+    async def add(
+        self,
+        data: list[Datum],
+        *,
+        namespace: str = "default",
+    ) -> list[str]: ...
 
     async def add(
         self,
-        maybe_inputs,
-        maybe_outputs: dict | None = None,
-        maybe_id: str = "",
+        maybe_inputs: IO | list[Datum],
+        maybe_outputs: IO | None = None,
+        *,
+        id: str = "",
         namespace: str = "default",
     ) -> str | list[str]:
-        is_io = isinstance(maybe_inputs, dict) and isinstance(maybe_outputs, dict)
-        data: list[tuple[dict, dict, str]] = (
-            [(maybe_inputs, maybe_outputs, maybe_id)] if is_io else maybe_inputs
+        is_io = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
+        data: list[Datum] = (
+            [(maybe_inputs, maybe_outputs, id)] if is_io else maybe_inputs
         )
         shots = [Shot(*datum) for datum in data]
         embeddings = await self.embed([shot.key for shot in shots])
@@ -42,14 +50,19 @@ class AsyncBestShots:
         return ids[0] if is_io else ids
 
     @overload
-    async def remove(self, id: str, namespace: str = "default"): ...
+    async def remove(self, id: str, *, namespace: str = "default"): ...
 
     @overload
-    async def remove(self, ids: list[str], namespace: str = "default"): ...
+    async def remove(self, ids: list[str], *, namespace: str = "default"): ...
 
     @overload
     async def remove(
-        self, inputs: dict, outputs: dict, id: str = "", namespace: str = "default"
+        self,
+        inputs: IO,
+        outputs: IO | None = None,
+        *,
+        id: str = "",
+        namespace: str = "default",
     ): ...
 
     @overload
@@ -57,13 +70,14 @@ class AsyncBestShots:
 
     async def remove(
         self,
-        maybe_inputs,
-        maybe_outputs: dict | None = None,
+        maybe_inputs: IO | list[Datum],
+        maybe_outputs: IO | None = None,
+        *,
         id: str = "",
         namespace: str = "default",
     ):
-        is_io = isinstance(maybe_inputs, dict) and isinstance(maybe_outputs, dict)
-        data: list[tuple[dict, dict, str]] = (
+        is_io = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
+        data: list[Datum] = (
             [(maybe_inputs, maybe_outputs, id)] if is_io else maybe_inputs
         )
         match data:
@@ -83,7 +97,8 @@ class AsyncBestShots:
 
     async def list(
         self,
-        inputs: dict,
+        inputs: IO,
+        *,
         namespace: str = "default",
         limit: int = 5,
     ) -> list[ShotWithSimilarity]:
