@@ -7,7 +7,7 @@ from .embed.base import Embedder
 from .store.base import ShotWithSimilarity, Store
 
 
-Datum = TypeVar("Datum", bound=tuple[dict, dict] | tuple[dict, dict, str])
+Datum = TypeVar("Datum", bound=tuple[dict, dict] | tuple[dict, dict, str] | tuple[str, str] | tuple[str, str, str])
 
 
 @dataclass
@@ -17,7 +17,7 @@ class BestShots:
 
     @overload
     def add(
-        self, inputs: dict, outputs: dict, id: str = "", namespace: str = "default"
+        self, inputs: dict | str, outputs: dict | str, id: str = "", namespace: str = "default"
     ) -> str: ...
 
     @overload
@@ -26,12 +26,14 @@ class BestShots:
     def add(
         self,
         maybe_inputs,
-        maybe_outputs: dict | None = None,
+        maybe_outputs: dict | str | None = None,
         maybe_id: str = "",
         namespace: str = "default",
     ) -> str | list[str]:
-        is_io = isinstance(maybe_inputs, dict) and isinstance(maybe_outputs, dict)
-        data: list[tuple[dict, dict, str]] = (
+        is_io = (isinstance(maybe_inputs, dict) and isinstance(maybe_outputs, dict)) or (
+            isinstance(maybe_inputs, str) and isinstance(maybe_outputs, str)
+        )
+        data: list[tuple[dict, dict, str]] | list[tuple[str, str, str]] = (
             [(maybe_inputs, maybe_outputs, maybe_id)] if is_io else maybe_inputs
         )
         shots = [Shot(*datum) for datum in data]
@@ -49,7 +51,7 @@ class BestShots:
 
     @overload
     def remove(
-        self, inputs: dict, outputs: dict, id: str = "", namespace: str = "default"
+        self, inputs: dict | str, outputs: dict | str, id: str = "", namespace: str = "default"
     ): ...
 
     @overload
@@ -58,12 +60,14 @@ class BestShots:
     def remove(
         self,
         maybe_inputs,
-        maybe_outputs: dict | None = None,
+        maybe_outputs: dict | str | None = None,
         id: str = "",
         namespace: str = "default",
     ):
-        is_io = isinstance(maybe_inputs, dict) and isinstance(maybe_outputs, dict)
-        data: list[tuple[dict, dict, str]] = (
+        is_io = isinstance(maybe_inputs, dict) and isinstance(maybe_outputs, dict) or (
+            isinstance(maybe_inputs, str) and isinstance(maybe_outputs, str)
+        )
+        data: list[tuple[dict, dict, str]] | list[tuple[str, str, str]] = (
             [(maybe_inputs, maybe_outputs, id)] if is_io else maybe_inputs
         )
         match data:
@@ -83,8 +87,8 @@ class BestShots:
 
     def list(
         self,
-        inputs: dict,
-        namespace: str,
+        inputs: dict | str,
+        namespace: str = "default",
         limit: int = 5,
     ) -> list[ShotWithSimilarity]:
         embedding = self.embedder.embed([data_key(inputs)])[0]

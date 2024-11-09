@@ -6,7 +6,7 @@ from typing import TypeVar
 import ujson
 
 
-def data_key(data: dict) -> str:
+def data_key(data: dict | str) -> str:
     return ujson.dumps(data, sort_keys=True)
 
 
@@ -20,7 +20,7 @@ class Shot:
     outputs: dict
     id: str
 
-    def __init__(self, inputs: dict, outputs: dict, id: str = ""):
+    def __init__(self, inputs: dict | str, outputs: dict | str, id: str = ""):
         super().__init__()
         self.inputs = inputs
         self.outputs = outputs

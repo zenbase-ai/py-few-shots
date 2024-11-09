@@ -30,11 +30,11 @@ def test_functional_flow(client: BestShots):
     results = [shot for shot, _ in results]
     assert results == [Shot(inputs, outputs)]
 
-    client.remove(inputs, outputs)
+    client.remove((inputs, outputs))
     assert [] == client.list(inputs, limit=1)
 
     client.add(inputs, outputs)
-    client.clear(namespace="test")
+    client.clear(namespace="default")
     assert [] == client.list(inputs)
 
 
@@ -57,5 +57,5 @@ def test_messages_flow(client: BestShots):
     assert [] == client.list(inputs, limit=1)
 
     client.add(inputs, outputs)
-    client.clear(namespace="test")
+    client.clear(namespace="default")
     assert [] == client.list(inputs)
