@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from best_shot.types import Shot, ShotWithSimilarity
+from best_shot.types import Embedding, Shot, ShotWithSimilarity
 
 
 class Store:
@@ -8,7 +8,7 @@ class Store:
     def add(
         self,
         shots: list[Shot],
-        embeddings: list[list[float]],
+        embeddings: list[Embedding],
         namespace: str,
     ): ...
 
@@ -25,7 +25,7 @@ class Store:
     @abstractmethod
     def list(
         self,
-        embedding: list[float],
+        embedding: Embedding,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]: ...
@@ -36,7 +36,7 @@ class AsyncStore(Store):
     async def add(
         self,
         shots: list[Shot],
-        embeddings: list[list[float]],
+        embeddings: list[Embedding],
         namespace: str,
     ): ...
 
@@ -49,7 +49,7 @@ class AsyncStore(Store):
     @abstractmethod
     async def list(
         self,
-        embedding: list[float],
+        embedding: Embedding,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]: ...

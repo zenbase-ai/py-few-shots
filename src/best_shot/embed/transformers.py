@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from sentence_transformers import SentenceTransformer
 
+from best_shot.types import Embedding
 from best_shot.utils.asyncify import asyncify_class
 from .base import AsyncEmbedder, Embedder
 
@@ -10,7 +11,7 @@ from .base import AsyncEmbedder, Embedder
 class TransformersEmbedder(Embedder):
     model: SentenceTransformer
 
-    def __call__(self, inputs: list[str]) -> list[list[float]]:
+    def __call__(self, inputs: list[str]) -> list[Embedding]:
         return self.model.encode(inputs).tolist()
 
 

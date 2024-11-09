@@ -3,24 +3,24 @@ from operator import itemgetter
 
 import numpy as np
 
-from best_shot.types import Shot
+from best_shot.types import Embedding, Shot
 from best_shot.utils.asyncify import asyncify_class
 
 from .base import ShotWithSimilarity, Store
 
 
-def cosine_similarity(a: list[float], b: list[float]) -> float:
+def cosine_similarity(a: Embedding, b: Embedding) -> float:
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 
 class MemoryStore(Store):
-    # namespace => key => (shot, embedding)
-    _storage: dict[str, dict[str, tuple[Shot, list[float]]]]
+    # namespace => id => (shot, embedding)
+    _storage: dict[str, dict[str, tuple[Shot, Embedding]]]
 
     def __init__(self):
         self._storage = defaultdict(dict)
 
-    def add(self, shots: list[Shot], embeddings: list[list[float]], namespace: str):
+    def add(self, shots: list[Shot], embeddings: list[Embedding], namespace: str):
         for shot, embedding in zip(shots, embeddings):
             self._storage[namespace][shot.id] = (shot, embedding)
 
@@ -33,7 +33,7 @@ class MemoryStore(Store):
 
     def list(
         self,
-        embedding: list[float],
+        embedding: Embedding,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]:

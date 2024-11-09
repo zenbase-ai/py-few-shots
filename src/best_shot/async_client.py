@@ -38,16 +38,16 @@ class AsyncBestShots:
         id: str = "",
         namespace: str = "default",
     ) -> str | list[str]:
-        is_io = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
+        is_io_args = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
         data: list[Datum] = (
-            [(maybe_inputs, maybe_outputs, id)] if is_io else maybe_inputs
+            [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         )
         shots = [Shot(*datum) for datum in data]
         embeddings = await self.embed([shot.key for shot in shots])
         await self.store.add(shots, embeddings, namespace)
 
         ids = [shot.id for shot in shots]
-        return ids[0] if is_io else ids
+        return ids[0] if is_io_args else ids
 
     @overload
     async def remove(self, id: str, *, namespace: str = "default"): ...
@@ -76,9 +76,9 @@ class AsyncBestShots:
         id: str = "",
         namespace: str = "default",
     ):
-        is_io = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
+        is_io_args = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
         data: list[Datum] = (
-            [(maybe_inputs, maybe_outputs, id)] if is_io else maybe_inputs
+            [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         )
         match data:
             case str() as id:
@@ -102,5 +102,5 @@ class AsyncBestShots:
         namespace: str = "default",
         limit: int = 5,
     ) -> list[ShotWithSimilarity]:
-        embedding = await self.embed([data_key(inputs)])
-        return await self.store.list(embedding[0], namespace, limit)
+        [embedding] = await self.embed([data_key(inputs)])
+        return await self.store.list(embedding, namespace, limit)

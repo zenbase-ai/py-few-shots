@@ -8,6 +8,7 @@ import ujson
 
 IO = TypeVar("IO", bound=dict | str)
 Datum = TypeVar("Datum", bound=tuple[IO, IO] | tuple[IO, IO, str])
+Embedding = TypeVar("Embedding", bound=list[float])
 
 
 def is_io_value(value) -> bool:
