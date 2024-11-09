@@ -14,7 +14,7 @@ def syncify_class(cls: C) -> C:
     for base in [cls] + list(cls.__bases__):
         for name, method in base.__dict__.items():
             if iscoroutinefunction(method) and is_target(name):
-                setattr(cls, name, syncify(method))
+                setattr(cls, name, syncify(method, raise_sync_error=False))
     return cls
 
 
