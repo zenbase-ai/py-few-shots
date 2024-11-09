@@ -38,7 +38,36 @@ def test_functional_flow(client: BestShots):
     assert [] == client.list(inputs)
 
 
-def test_messages_flow(client: BestShots):
+def test_dispatch(client: BestShots):
+    inputs = {"a": 1}
+    outputs = {"b": 2}
+
+    id = client.add(inputs, outputs)
+    assert id == Shot(inputs, outputs).id
+
+    client.remove([id])
+    assert [] == client.list(inputs)
+
+    [id] = client.add([(inputs, outputs)])
+    client.remove([id])
+    assert [] == client.list(inputs)
+
+    client.add([(inputs, outputs)])
+    client.remove([(inputs, outputs)])
+    assert [] == client.list(inputs)
+
+    [id] = client.add([(inputs, outputs, "id")])
+    assert id == "id"
+
+    client.remove([(inputs, outputs, "id")])
+    assert [] == client.list(inputs)
+
+    client.add([(inputs, outputs, "id")])
+    client.remove(["id"])
+    assert [] == client.list(inputs)
+
+
+def test_string_flow(client: BestShots):
     inputs = "User question..."
     outputs = "AI answer..."
 

@@ -50,9 +50,6 @@ class AsyncBestShots:
         return ids[0] if is_io_args else ids
 
     @overload
-    async def remove(self, id: str, *, namespace: str = "default"): ...
-
-    @overload
     async def remove(self, ids: list[str], *, namespace: str = "default"): ...
 
     @overload
@@ -66,7 +63,11 @@ class AsyncBestShots:
     ): ...
 
     @overload
-    async def remove(self, data: list[Datum], namespace: str = "default"): ...
+    async def remove(
+        self,
+        data: list[Datum],
+        namespace: str = "default",
+    ): ...
 
     async def remove(
         self,

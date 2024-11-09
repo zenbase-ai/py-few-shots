@@ -52,14 +52,6 @@ class BestShots:
     @overload
     def remove(
         self,
-        id: str,
-        *,
-        namespace: str = "default",
-    ): ...
-
-    @overload
-    def remove(
-        self,
         ids: list[str],
         *,
         namespace: str = "default",
