@@ -6,6 +6,14 @@ from typing import TypeVar
 import ujson
 
 
+IO = TypeVar("IO", bound=dict | str)
+Datum = TypeVar("Datum", bound=tuple[IO, IO] | tuple[IO, IO, str])
+
+
+def is_io_value(value) -> bool:
+    return isinstance(value, (dict, str))
+
+
 def data_key(data: dict) -> str:
     return ujson.dumps(data, sort_keys=True)
 
@@ -16,11 +24,11 @@ def data_hash(data: dict) -> str:
 
 @dataclass
 class Shot:
-    inputs: dict
-    outputs: dict
+    inputs: IO
+    outputs: IO
     id: str
 
-    def __init__(self, inputs: dict, outputs: dict, id: str = ""):
+    def __init__(self, inputs: IO, outputs: IO, id: str = ""):
         super().__init__()
         self.inputs = inputs
         self.outputs = outputs
@@ -31,10 +39,4 @@ class Shot:
         return data_key(self.inputs)
 
 
-IO = TypeVar("IO", bound=dict | str)
-Datum = TypeVar("Datum", bound=tuple[IO, IO] | tuple[IO, IO, str])
 ShotWithSimilarity = TypeVar("ShotWithSimilarity", bound=tuple[Shot, float])
-
-
-def is_io_value(value) -> bool:
-    return isinstance(value, (dict, str))
