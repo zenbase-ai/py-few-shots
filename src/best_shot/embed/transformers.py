@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sentence_transformers import SentenceTransformer
 
 from best_shot.types import Embedding
-from best_shot.utils.asyncify import asyncify_class
+from best_shot.utils.asyncio import asyncify_class
 from .base import AsyncEmbedder, Embedder
 
 

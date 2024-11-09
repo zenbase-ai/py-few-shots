@@ -2,25 +2,6 @@ from best_shot.types import Shot
 from best_shot.utils.format import shots_to_messages
 
 
-from best_shot.utils.format import to_str
-import pytest
-
-
-def test_to_str_string():
-    assert to_str("test") == "test"
-
-
-def test_to_str_dict():
-    data = {"key": "value"}
-    assert to_str(data) == '{"key":"value"}'
-
-
-def test_to_str_invalid_type():
-    with pytest.raises(ValueError) as exc:
-        to_str(123)
-    assert str(exc.value) == "Unsupported value type: <class 'int'>"
-
-
 def test_shots_to_messages_empty():
     assert shots_to_messages([]) == []
 
@@ -55,7 +36,7 @@ def test_shots_to_messages_dict_inputs():
     )
     expected = [
         {
-            "content": '{"context":"some context","prompt":"test input"}',
+            "content": {"context": "some context", "prompt": "test input"},
             "role": "user",
         },
         {"content": "test output", "role": "assistant"},
@@ -71,7 +52,7 @@ def test_shots_to_messages_dict_outputs():
     expected = [
         {"content": "test input", "role": "user"},
         {
-            "content": '{"metadata":{"confidence":0.9},"response":"test output"}',
+            "content": {"metadata": {"confidence": 0.9}, "response": "test output"},
             "role": "assistant",
         },
     ]
@@ -81,7 +62,7 @@ def test_shots_to_messages_dict_outputs():
 def test_shots_to_messages_dict_both():
     shot = Shot(inputs={"prompt": "test input"}, outputs={"response": "test output"})
     expected = [
-        {"content": '{"prompt":"test input"}', "role": "user"},
-        {"content": '{"response":"test output"}', "role": "assistant"},
+        {"content": {"prompt": "test input"}, "role": "user"},
+        {"content": {"response": "test output"}, "role": "assistant"},
     ]
     assert shots_to_messages([shot]) == expected

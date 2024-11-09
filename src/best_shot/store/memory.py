@@ -4,7 +4,7 @@ from operator import itemgetter
 import numpy as np
 
 from best_shot.types import Embedding, Shot
-from best_shot.utils.asyncify import asyncify_class
+from best_shot.utils.asyncio import asyncify_class
 
 from .base import ShotWithSimilarity, Store
 
