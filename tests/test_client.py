@@ -7,32 +7,55 @@ from best_shot.store.memory import MemoryStore
 from best_shot.types import Shot
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def client():
     return BestShots(
-        embedder=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
+        embed=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
         store=MemoryStore(),
     )
 
 
-def test_flow(client: BestShots):
+def test_functional_flow(client: BestShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
 
-    id = client.add(inputs, outputs, namespace="test")
+    id = client.add(inputs, outputs)
     assert id == Shot(inputs, outputs).id
 
-    results = client.list(inputs, namespace="test", limit=1)
+    results = client.list(inputs, limit=1)
     results = [shot for shot, _ in results]
     assert results == [Shot(inputs, outputs)]
 
-    results = client.list(inputs, namespace="test", limit=5)
+    results = client.list(inputs, limit=5)
     results = [shot for shot, _ in results]
     assert results == [Shot(inputs, outputs)]
 
-    client.remove(inputs, outputs, namespace="test")
-    assert [] == client.list(inputs, namespace="test", limit=1)
+    client.remove(inputs, outputs)
+    assert [] == client.list(inputs, limit=1)
 
-    client.add(inputs, outputs, namespace="test")
-    client.clear(namespace="test")
-    assert [] == client.list(inputs, namespace="test")
+    client.add(inputs, outputs)
+    client.clear()
+    assert [] == client.list(inputs)
+
+
+def test_messages_flow(client: BestShots):
+    inputs = "User question..."
+    outputs = "AI answer..."
+
+    id = client.add(inputs, outputs)
+    assert id == Shot(inputs, outputs).id
+
+    results = client.list(inputs, limit=1)
+    results = [shot for shot, _ in results]
+    assert results == [Shot(inputs, outputs)]
+
+    results = client.list(inputs, limit=5)
+    results = [shot for shot, _ in results]
+    assert results == [Shot(inputs, outputs)]
+
+    client.remove(inputs, outputs)
+    assert [] == client.list(inputs, limit=1)
+
+    client.add(inputs, outputs)
+    client.clear()
+    assert [] == client.list(inputs)
