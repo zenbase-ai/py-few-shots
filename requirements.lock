@@ -11,8 +11,11 @@
 annotated-types==0.7.0
     # via pydantic
 anyio==4.6.2.post1
+    # via asyncer
     # via httpx
     # via openai
+asyncer==0.0.8
+    # via best-shot
 certifi==2024.8.30
     # via httpcore
     # via httpx

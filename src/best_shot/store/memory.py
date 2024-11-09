@@ -4,6 +4,7 @@ from operator import itemgetter
 import numpy as np
 
 from best_shot.types import Shot
+from best_shot.utils.asyncify import asyncify_class
 
 from .base import ShotWithSimilarity, Store
 
@@ -41,3 +42,7 @@ class MemoryStore(Store):
             for (shot, emb) in self._storage[namespace].values()
         ]
         return sorted(shots_with_similarities, key=itemgetter(1), reverse=True)[:limit]
+
+
+@asyncify_class
+class AsyncMemoryStore(MemoryStore): ...

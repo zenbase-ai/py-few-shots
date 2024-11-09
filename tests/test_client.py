@@ -10,7 +10,7 @@ from best_shot.types import Shot
 @pytest.fixture(scope="function")
 def client():
     return BestShots(
-        embedder=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
+        embed=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
         store=MemoryStore(),
     )
 
@@ -34,7 +34,7 @@ def test_functional_flow(client: BestShots):
     assert [] == client.list(inputs, limit=1)
 
     client.add(inputs, outputs)
-    client.clear(namespace="test")
+    client.clear()
     assert [] == client.list(inputs)
 
 
@@ -57,5 +57,5 @@ def test_messages_flow(client: BestShots):
     assert [] == client.list(inputs, limit=1)
 
     client.add(inputs, outputs)
-    client.clear(namespace="test")
+    client.clear()
     assert [] == client.list(inputs)
