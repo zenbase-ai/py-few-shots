@@ -33,15 +33,21 @@ attrs==24.2.0
     # via outcome
     # via referencing
     # via trio
+authlib==1.3.1
+    # via weaviate-client
 beartype==0.19.0
 certifi==2024.8.30
     # via httpcore
     # via httpx
     # via requests
+cffi==1.17.1
+    # via cryptography
 charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via litellm
+cryptography==43.0.3
+    # via authlib
 decorator==5.1.1
     # via ipdb
     # via ipython
@@ -64,12 +70,21 @@ frozenlist==1.5.0
 fsspec==2024.10.0
     # via huggingface-hub
     # via torch
+grpcio==1.67.1
+    # via grpcio-health-checking
+    # via grpcio-tools
+    # via weaviate-client
+grpcio-health-checking==1.67.1
+    # via weaviate-client
+grpcio-tools==1.67.1
+    # via weaviate-client
 h11==0.14.0
     # via httpcore
 httpcore==1.0.6
     # via httpx
-httpx==0.27.2
+httpx==0.27.0
     # via openai
+    # via weaviate-client
 huggingface-hub==0.26.2
     # via sentence-transformers
     # via tokenizers
@@ -138,13 +153,19 @@ prompt-toolkit==3.0.48
     # via ipython
 propcache==0.2.0
     # via yarl
+protobuf==5.28.3
+    # via grpcio-health-checking
+    # via grpcio-tools
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
+pycparser==2.22
+    # via cffi
 pydantic==2.9.2
     # via litellm
     # via openai
+    # via weaviate-client
 pydantic-core==2.23.4
     # via pydantic
 pygments==2.18.0
@@ -168,6 +189,7 @@ requests==2.32.3
     # via litellm
     # via tiktoken
     # via transformers
+    # via weaviate-client
 rpds-py==0.21.0
     # via jsonschema
     # via referencing
@@ -180,6 +202,8 @@ scipy==1.14.1
     # via sentence-transformers
 sentence-transformers==3.2.1
     # via best-shot
+setuptools==75.3.0
+    # via grpcio-tools
 six==1.16.0
     # via asttokens
 sniffio==1.3.1
@@ -230,8 +254,11 @@ ujson==5.10.0
     # via best-shot
 urllib3==2.2.3
     # via requests
+validators==0.34.0
+    # via weaviate-client
 wcwidth==0.2.13
     # via prompt-toolkit
+weaviate-client==4.9.3
 yarl==1.17.1
     # via aiohttp
 zipp==3.20.2

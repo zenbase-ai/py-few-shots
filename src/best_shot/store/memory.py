@@ -3,10 +3,10 @@ from operator import itemgetter
 
 import numpy as np
 
-from best_shot.types import Shot
+from best_shot.types import Shot, ShotWithSimilarity
 from best_shot.utils.asyncify import asyncify_class
 
-from .base import ShotWithSimilarity, Store
+from .base import Store
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:

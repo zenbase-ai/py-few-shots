@@ -32,6 +32,7 @@ dev-dependencies = [
     "beartype>=0.19.0",
     "litellm>=1.52.3",
     "trio>=0.27.0",
+    "weaviate-client>=4.9.3",
 ]
 
 [tool.hatch.metadata]
