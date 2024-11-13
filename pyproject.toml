@@ -6,16 +6,12 @@ authors = [
     { name = "cyrus", email = "cyrus@zenbase.ai" },
     { name = "behradkhorram", email = "behrad@zenbase.ai" }
 ]
-dependencies = [
-    "ujson>=5.10.0",
-    "asyncer>=0.0.8",
-]
+dependencies = ["ujson>=5.10.0", "asyncer>=0.0.8"]
 readme = "README.md"
 requires-python = ">= 3.8"
 
 [project.optional-dependencies]
 transformers = ["transformers>=4.46.2", "sentence-transformers>=3.2.1"]
-openai = ["openai>=1.54.3"]
 memory = ["numpy<2"]
 
 [build-system]

@@ -3,10 +3,9 @@ from operator import itemgetter
 
 import numpy as np
 
-from best_shot.types import Embedding, Shot
 from best_shot.utils.asyncio import asyncify_class
 
-from .base import ShotWithSimilarity, Store
+from .base import Embedding, Shot, ShotWithSimilarity, Store
 
 
 def cosine_similarity(a: Embedding, b: Embedding) -> float:

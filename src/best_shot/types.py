@@ -15,6 +15,13 @@ def is_io_value(value) -> bool:
     return isinstance(value, (dict, str))
 
 
+def parse_io_value(value: str) -> IO:
+    try:
+        return ujson.loads(value)
+    except ujson.JSONDecodeError:
+        return value
+
+
 def data_key(data: dict) -> str:
     return ujson.dumps(data, sort_keys=True)
 
