@@ -1,7 +1,14 @@
 from dataclasses import dataclass
 from typing import overload
 
-from best_shot.types import Shot, data_key, Datum, IO, ShotWithSimilarity, is_io_value
+from best_shot.types import (
+    Shot,
+    dump_io_value,
+    Datum,
+    IO,
+    ShotWithSimilarity,
+    is_io_value,
+)
 
 from .embed.base import AsyncEmbedder
 from .store.base import AsyncStore
@@ -94,5 +101,5 @@ class AsyncBestShots:
         namespace: str = "default",
         limit: int = 5,
     ) -> list[ShotWithSimilarity]:
-        [embedding] = await self.embed([data_key(inputs)])
+        [embedding] = await self.embed([dump_io_value(inputs)])
         return await self.store.list(embedding, namespace, limit)

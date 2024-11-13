@@ -1,7 +1,14 @@
 from dataclasses import dataclass
 from typing import overload
 
-from best_shot.types import Shot, data_key, Datum, IO, ShotWithSimilarity, is_io_value
+from best_shot.types import (
+    Shot,
+    dump_io_value,
+    Datum,
+    IO,
+    ShotWithSimilarity,
+    is_io_value,
+)
 
 from .embed.base import Embedder
 from .store.base import Store
@@ -100,5 +107,5 @@ class BestShots:
         namespace: str = "default",
         limit: int = 5,
     ) -> list[ShotWithSimilarity]:
-        [embedding] = self.embed([data_key(inputs)])
+        [embedding] = self.embed([dump_io_value(inputs)])
         return self.store.list(embedding, namespace, limit)

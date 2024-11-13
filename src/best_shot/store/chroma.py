@@ -3,9 +3,15 @@ from typing import List
 from chromadb import Collection
 from chromadb.api.async_client import AsyncCollection
 
-from best_shot.types import data_key, parse_io_value
+from best_shot.types import (
+    dump_io_value,
+    Embedding,
+    parse_io_value,
+    Shot,
+    ShotWithSimilarity,
+)
 
-from .base import Embedding, Shot, ShotWithSimilarity, Store
+from .base import Store
 
 
 class ChromaStore(Store):
@@ -20,7 +26,8 @@ class ChromaStore(Store):
             documents=[shot.key for shot in shots],
             embeddings=embeddings,
             metadatas=[
-                {"namespace": namespace, "outputs": data_key(s.outputs)} for s in shots
+                {"namespace": namespace, "outputs": dump_io_value(s.outputs)}
+                for s in shots
             ],
         )
 
@@ -67,7 +74,8 @@ class AsyncChromaStore(ChromaStore):
             embeddings=embeddings,
             documents=[shot.key for shot in shots],
             metadatas=[
-                {"namespace": namespace, "outputs": data_key(s.outputs)} for s in shots
+                {"namespace": namespace, "outputs": dump_io_value(s.outputs)}
+                for s in shots
             ],
         )
 

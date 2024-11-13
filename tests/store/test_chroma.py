@@ -1,22 +1,23 @@
-from chromadb import Client
 import pytest
 
-from best_shot.store.chroma import ChromaStore, Collection
-from best_shot.types import Shot
+from chromadb import Client
+from chromadb.api.client import ClientAPI
+
+from best_shot.store.chroma import ChromaStore, Collection, Shot
 
 
 @pytest.fixture
-def chroma():
+def client():
     return Client()
 
 
 @pytest.fixture
-def collection(chroma):
-    return chroma.create_collection("test", get_or_create=True)
+def collection(client: ClientAPI):
+    return client.create_collection("test", get_or_create=True)
 
 
 @pytest.fixture
-def store(collection):
+def store(collection: Collection):
     return ChromaStore(collection)
 
 
@@ -43,7 +44,7 @@ def test_crud(store: ChromaStore, collection: Collection):
     assert collection.count() == 0
 
 
-def test_structured_io(store: ChromaStore, collection: Collection):
+def test_structured_io(store: ChromaStore):
     shots = [
         Shot({"key": "input1"}, {"key": "output1"}, "id1"),
         Shot({"key": "input2"}, {"key": "output2"}, "id2"),

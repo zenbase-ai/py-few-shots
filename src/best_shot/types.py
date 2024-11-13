@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from hashlib import sha256
 from typing import TypeVar
+from uuid import uuid5, NAMESPACE_OID
 
 import ujson
 
@@ -22,12 +23,14 @@ def parse_io_value(value: str) -> IO:
         return value
 
 
-def data_key(data: dict) -> str:
+def dump_io_value(data: IO) -> str:
+    if isinstance(data, str):
+        return data
     return ujson.dumps(data, sort_keys=True)
 
 
-def data_hash(data: dict) -> str:
-    return sha256(data_key(data).encode()).hexdigest()
+def id_io_value(data: IO) -> str:
+    return str(uuid5(NAMESPACE_OID, dump_io_value(data)))
 
 
 @dataclass
@@ -40,11 +43,11 @@ class Shot:
         super().__init__()
         self.inputs = inputs
         self.outputs = outputs
-        self.id = id or data_hash(inputs)
+        self.id = id or id_io_value(inputs)
 
     @cached_property
     def key(self) -> str:
-        return data_key(self.inputs)
+        return dump_io_value(self.inputs)
 
 
 ShotWithSimilarity = TypeVar("ShotWithSimilarity", bound=tuple[Shot, float])
