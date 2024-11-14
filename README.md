@@ -7,9 +7,22 @@ Ever wished your AI model had a better memory? Meet FewShot - the simple yet pow
 
 ## 🌟 Features
 
-- 🚀 **Lightning Fast**: Both sync and async implementations for maximum flexibility
 - 🎮 **Easy to Use**: Simple, intuitive API for managing your AI's example database
 - 🔄 **Structured Output**: Support for structured outputs
+
+## 💡 Use Cases
+
+- 🤖 Enhance your chatbot with dynamic example retrieval
+- 📚 Build a self-improving knowledge base
+- 🎯 Implement context-aware few-shot learning
+- 🧪 Test and experiment with different few-shot strategies
+
+## 🛠️ Core Components
+
+- **Shot**: The fundamental unit representing an input-output pair with a unique ID (bring your own ID or let FewShots hash the inputs)
+- **Embed**: Converts inputs into vector embeddings for similarity search
+- **Store**: Manages storage and retrieval of examples
+- **Client**: Ties everything together with a clean, simple interface
 
 ## 🚀 Quick Start
 
@@ -94,20 +107,6 @@ shots = AsyncFewShots(
     store=MemoryStore()
 )
 ```
-
-## 🛠️ Core Components
-
-- **Shot**: The fundamental unit representing an input-output pair with a unique ID (you can use your own ID or let FewShots hash the inputs)
-- **Embed**: Converts inputs into vector embeddings for similarity search
-- **Store**: Manages storage and retrieval of examples
-- **Client**: Ties everything together with a clean, simple interface
-
-## 💡 Use Cases
-
-- 🤖 Enhance your chatbot with dynamic example retrieval
-- 📚 Build a self-improving knowledge base
-- 🎯 Implement context-aware few-shot learning
-- 🧪 Test and experiment with different few-shot strategies
 
 ## 🤝 Contributing
 
