@@ -37,6 +37,8 @@ dev-dependencies = [
     "psycopg>=3.2.3",
     "pymilvus>=2.4.9",
     "pyvespa>=0.50.0",
+    "langchain-community>=0.3.7",
+    "syrupy>=4.7.2",
 ]
 
 [tool.hatch.metadata]

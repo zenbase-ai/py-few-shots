@@ -13,10 +13,9 @@ def test_data_key():
     assert dump_io_value(data) == '{"a":1,"b":2}'
 
 
-def test_data_hash():
+def test_data_hash(snapshot):
     data = {"test": "value"}
-    expected_hash = "928c36c9-b984-5597-9fc6-b20eafa55115"
-    assert id_io_value(data) == expected_hash
+    assert id_io_value(data) == snapshot
 
 
 def test_init_with_id():

@@ -1,5 +1,3 @@
-from typing import List
-
 from chromadb import Collection
 from chromadb.api.async_client import AsyncCollection
 
