@@ -1,6 +1,6 @@
 [project]
 name = "few-shots"
-version = "0.1.1"
+version = "0.1.2"
 description = "Take your best shot"
 authors = [
     { name = "cyrus", email = "cyrus@zenbase.ai" },
