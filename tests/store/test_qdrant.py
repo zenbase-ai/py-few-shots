@@ -25,11 +25,11 @@ def test_crud(store: QdrantStore):
         Shot("input1", "output1", id_io_value("id1")),
         Shot("input2", "output2", id_io_value("id2")),
     ]
-    embeddings = [[1.0, 2.0], [3.0, 4.0]]
+    vectors = [[1.0, 2.0], [3.0, 4.0]]
     namespace = "test"
 
-    store.add(shots, embeddings, namespace)
-    store.add(shots, embeddings, namespace)
+    store.add(shots, vectors, namespace)
+    store.add(shots, vectors, namespace)
 
     results = store.list([1.0, 2.0], namespace, 2)
     assert len(results) == 2
@@ -50,10 +50,10 @@ def test_structured_io(store: QdrantStore):
         Shot({"key": "input1"}, {"key": "output1"}, id_io_value("id1")),
         Shot({"key": "input2"}, {"key": "output2"}, id_io_value("id2")),
     ]
-    embeddings = [[1.0, 2.0], [3.0, 4.0]]
+    vectors = [[1.0, 2.0], [3.0, 4.0]]
     namespace = "test"
 
-    store.add(shots, embeddings, namespace)
+    store.add(shots, vectors, namespace)
 
     (shot_0, _distance_0), (shot_1, _distance_1) = store.list([1.0, 2.0], namespace, 2)
 

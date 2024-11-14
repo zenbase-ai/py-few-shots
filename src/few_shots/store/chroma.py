@@ -5,7 +5,7 @@ from chromadb.api.async_client import AsyncCollection
 
 from few_shots.types import (
     dump_io_value,
-    Embedding,
+    Vector,
     parse_io_value,
     Shot,
     ShotWithSimilarity,
@@ -16,7 +16,7 @@ from .base import Store
 
 class ChromaBase(Store):
     @staticmethod
-    def _query_to_list(results: dict) -> list[ShotWithSimilarity]:
+    def _query_to_shots_list(results: dict) -> list[ShotWithSimilarity]:
         return [
             (
                 Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id),
@@ -37,11 +37,11 @@ class ChromaStore(ChromaBase):
     def __init__(self, collection: Collection):
         self.collection = collection
 
-    def add(self, shots: list[Shot], embeddings: list[Embedding], namespace: str):
+    def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
         self.collection.upsert(
             ids=[shot.id for shot in shots],
             documents=[shot.key for shot in shots],
-            embeddings=embeddings,
+            embeddings=vectors,
             metadatas=[
                 {"namespace": namespace, "outputs": dump_io_value(s.outputs)}
                 for s in shots
@@ -56,25 +56,25 @@ class ChromaStore(ChromaBase):
 
     def list(
         self,
-        embedding: Embedding,
+        vector: Vector,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]:
         results = self.collection.query(
-            query_embeddings=[embedding],
+            query_embeddings=[vector],
             n_results=limit,
             where={"namespace": namespace},
         )
-        return self._query_to_list(results)
+        return self._query_to_shots_list(results)
 
 
 class AsyncChromaStore(ChromaBase):
     collection: AsyncCollection
 
-    async def add(self, shots: list[Shot], embeddings: list[Embedding], namespace: str):
+    async def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
         await self.collection.add(
             ids=[shot.id for shot in shots],
-            embeddings=embeddings,
+            embeddings=vectors,
             documents=[shot.key for shot in shots],
             metadatas=[
                 {"namespace": namespace, "outputs": dump_io_value(s.outputs)}
@@ -90,13 +90,13 @@ class AsyncChromaStore(ChromaBase):
 
     async def list(
         self,
-        embedding: Embedding,
+        vector: Vector,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]:
         results = await self.collection.query(
-            query_embeddings=[embedding],
+            query_embeddings=[vector],
             n_results=limit,
             where={"namespace": namespace},
         )
-        return self._query_to_list(results)
+        return self._query_to_shots_list(results)

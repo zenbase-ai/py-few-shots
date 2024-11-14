@@ -15,7 +15,7 @@ def test_data_key():
 
 def test_data_hash():
     data = {"test": "value"}
-    expected_hash = "f98be16ebfa861cb39a61faff9e52b33f5bcc16bb6ae72e728d226dc07093932"
+    expected_hash = "928c36c9-b984-5597-9fc6-b20eafa55115"
     assert id_io_value(data) == expected_hash
 
 

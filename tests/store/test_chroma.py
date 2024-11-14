@@ -23,13 +23,13 @@ def store(collection: Collection):
 
 def test_crud(store: ChromaStore, collection: Collection):
     shots = [Shot("input1", "output1", "id1"), Shot("input2", "output2", "id2")]
-    embeddings = [[1.0, 2.0], [3.0, 4.0]]
+    vectors = [[1.0, 2.0], [3.0, 4.0]]
     namespace = "test"
 
-    store.add(shots, embeddings, namespace)
+    store.add(shots, vectors, namespace)
     assert collection.count() == 2
 
-    store.add(shots, embeddings, namespace)
+    store.add(shots, vectors, namespace)
     assert collection.count() == 2
 
     results = store.list([1.0, 2.0], namespace, 2)
@@ -49,10 +49,10 @@ def test_structured_io(store: ChromaStore):
         Shot({"key": "input1"}, {"key": "output1"}, "id1"),
         Shot({"key": "input2"}, {"key": "output2"}, "id2"),
     ]
-    embeddings = [[1.0, 2.0], [3.0, 4.0]]
+    vectors = [[1.0, 2.0], [3.0, 4.0]]
     namespace = "test"
 
-    store.add(shots, embeddings, namespace)
+    store.add(shots, vectors, namespace)
 
     (shot_0, distance_0), (shot_1, distance_1) = store.list([1.0, 2.0], namespace, 2)
 

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
-from hashlib import sha256
-from typing import TypeVar
+from typing import NamedTuple, TypeVar
 from uuid import uuid5, NAMESPACE_OID
 
 import ujson
@@ -9,7 +8,7 @@ import ujson
 
 IO = TypeVar("IO", bound=dict | str)
 Datum = TypeVar("Datum", bound=tuple[IO, IO] | tuple[IO, IO, str])
-Embedding = TypeVar("Embedding", bound=list[float])
+Vector = TypeVar("Vector", bound=list[float])
 
 
 def is_io_value(value) -> bool:
@@ -50,4 +49,7 @@ class Shot:
         return dump_io_value(self.inputs)
 
 
-ShotWithSimilarity = TypeVar("ShotWithSimilarity", bound=tuple[Shot, float])
+ShotWithSimilarity = NamedTuple(
+    "ShotWithSimilarity",
+    [("shot", Shot), ("similarity", float)],
+)

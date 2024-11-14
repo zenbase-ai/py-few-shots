@@ -1,11 +1,12 @@
+from typing import Mapping
 from weaviate.classes.data import DataObject
 from weaviate.classes.query import Filter
 from weaviate.collections import Collection, CollectionAsync
-from weaviate.collections.classes.internal import QuerySearchReturnType
+from weaviate.collections.classes.internal import QueryReturnType
 
 from few_shots.types import (
     dump_io_value,
-    Embedding,
+    Vector,
     parse_io_value,
     Shot,
     ShotWithSimilarity,
@@ -18,24 +19,24 @@ class WeaviateBase(Store):
     @staticmethod
     def _shots_to_data_objects(
         shots: list[Shot],
-        embeddings: list[Embedding],
+        vectors: list[Vector],
         namespace: str,
     ) -> list[DataObject]:
         return [
             DataObject(
                 uuid=shot.id,
-                vector=embedding,
+                vector=vector,
                 properties={
                     "namespace": namespace,
                     "inputs": dump_io_value(shot.inputs),
                     "outputs": dump_io_value(shot.outputs),
                 },
             )
-            for shot, embedding in zip(shots, embeddings)
+            for shot, vector in zip(shots, vectors)
         ]
 
     @staticmethod
-    def _response_to_shots(response: QuerySearchReturnType) -> list[ShotWithSimilarity]:
+    def _response_to_shots_list(response: QueryReturnType) -> list[ShotWithSimilarity]:
         return [
             (
                 Shot(
@@ -49,8 +50,11 @@ class WeaviateBase(Store):
         ]
 
     @staticmethod
-    def _namespace_filter(namespace: str) -> Filter:
-        return Filter.by_property("namespace").equal(namespace)
+    def _filter(namespace: str, ids: list[str] | None = None) -> Filter:
+        filters = Filter.by_property("namespace").equal(namespace)
+        if ids:
+            filters &= Filter.by_id().contains_any(ids)
+        return filters
 
 
 class WeaviateStore(WeaviateBase):
@@ -62,34 +66,32 @@ class WeaviateStore(WeaviateBase):
     def add(
         self,
         shots: list[Shot],
-        embeddings: list[Embedding],
+        vectors: list[Vector],
         namespace: str,
     ):
         self.collection.data.insert_many(
-            self._shots_to_data_objects(shots, embeddings, namespace)
+            self._shots_to_data_objects(shots, vectors, namespace)
         )
 
     def remove(self, ids: list[str], namespace: str):
-        self.collection.data.delete_many(
-            self._namespace_filter(namespace) & Filter.by_id().contains_any(ids)
-        )
+        self.collection.data.delete_many(self._filter(namespace, ids))
 
     def clear(self, namespace: str):
-        self.collection.data.delete_many(self._namespace_filter(namespace))
+        self.collection.data.delete_many(self._filter(namespace))
 
     def list(
         self,
-        embedding: Embedding,
+        vector: Vector,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]:
         response = self.collection.query.near_vector(
-            embedding,
-            filters=self._namespace_filter(namespace),
+            vector,
+            filters=self._filter(namespace),
             limit=limit,
         )
 
-        return self._response_to_shots(response)
+        return self._response_to_shots_list(response)
 
 
 class AsyncWeaviateStore(WeaviateBase):
@@ -101,31 +103,29 @@ class AsyncWeaviateStore(WeaviateBase):
     async def add(
         self,
         shots: list[Shot],
-        embeddings: list[Embedding],
+        vectors: list[Vector],
         namespace: str,
     ):
         await self.collection.data.insert_many(
-            self._shots_to_data_objects(shots, embeddings, namespace)
+            self._shots_to_data_objects(shots, vectors, namespace)
         )
 
     async def remove(self, ids: list[str], namespace: str):
-        await self.collection.data.delete_many(
-            self._namespace_filter(namespace) & Filter.by_id().contains_any(ids)
-        )
+        await self.collection.data.delete_many(self._filter(namespace, ids))
 
     async def clear(self, namespace: str):
-        await self.collection.data.delete_many(self._namespace_filter(namespace))
+        await self.collection.data.delete_many(self._filter(namespace))
 
     async def list(
         self,
-        embedding: Embedding,
+        vector: Vector,
         namespace: str,
         limit: int,
     ) -> list[ShotWithSimilarity]:
         response = await self.collection.query.near_vector(
-            embedding,
-            filters=self._namespace_filter(namespace),
+            vector,
+            filters=self._filter(namespace),
             limit=limit,
         )
 
-        return self._response_to_shots(response)
+        return self._response_to_shots_list(response)

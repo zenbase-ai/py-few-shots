@@ -50,8 +50,8 @@ class FewShots:
             [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         )
         shots = [Shot(*datum) for datum in data]
-        embeddings = self.embed([shot.key for shot in shots])
-        self.store.add(shots, embeddings, namespace)
+        vectors = self.embed([shot.key for shot in shots])
+        self.store.add(shots, vectors, namespace)
 
         ids = [shot.id for shot in shots]
         return ids[0] if is_io_args else ids
@@ -107,5 +107,5 @@ class FewShots:
         namespace: str = "default",
         limit: int = 5,
     ) -> list[ShotWithSimilarity]:
-        [embedding] = self.embed([dump_io_value(inputs)])
-        return self.store.list(embedding, namespace, limit)
+        [vector] = self.embed([dump_io_value(inputs)])
+        return self.store.list(vector, namespace, limit)
