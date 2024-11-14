@@ -14,7 +14,24 @@ from best_shot.types import (
 from .base import Store
 
 
-class ChromaStore(Store):
+class ChromaBase(Store):
+    @staticmethod
+    def _query_to_list(results: dict) -> list[ShotWithSimilarity]:
+        return [
+            (
+                Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id),
+                distance,
+            )
+            for (id, inputs, distance, metadata) in zip(
+                results["ids"][0],
+                results["documents"][0],
+                results["distances"][0],
+                results["metadatas"][0],
+            )
+        ]
+
+
+class ChromaStore(ChromaBase):
     collection: Collection
 
     def __init__(self, collection: Collection):
@@ -50,22 +67,8 @@ class ChromaStore(Store):
         )
         return self._query_to_list(results)
 
-    def _query_to_list(self, results: dict) -> List[ShotWithSimilarity]:
-        return [
-            (
-                Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id),
-                distance,
-            )
-            for (id, inputs, distance, metadata) in zip(
-                results["ids"][0],
-                results["documents"][0],
-                results["distances"][0],
-                results["metadatas"][0],
-            )
-        ]
 
-
-class AsyncChromaStore(ChromaStore):
+class AsyncChromaStore(ChromaBase):
     collection: AsyncCollection
 
     async def add(self, shots: list[Shot], embeddings: list[Embedding], namespace: str):
