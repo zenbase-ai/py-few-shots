@@ -2,7 +2,7 @@ import pytest
 from sentence_transformers import SentenceTransformer
 
 from few_shots.client import FewShots
-from few_shots.embed.transformers import TransformersEmbedder
+from few_shots.embed.transformers import TransformersEmbed
 from few_shots.store.memory import MemoryStore
 from few_shots.types import Shot
 
@@ -10,7 +10,7 @@ from few_shots.types import Shot
 @pytest.fixture(scope="function")
 def client():
     return FewShots(
-        embed=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
+        embed=TransformersEmbed(model=SentenceTransformer("all-MiniLM-L6-v2")),
         store=MemoryStore(),
     )
 

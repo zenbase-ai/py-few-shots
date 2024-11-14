@@ -3,11 +3,11 @@ from abc import abstractmethod
 from few_shots.types import Vector
 
 
-class Embedder:
+class Embed:
     @abstractmethod
     def __call__(self, inputs: list[str]) -> list[Vector]: ...
 
 
-class AsyncEmbedder(Embedder):
+class AsyncEmbed(Embed):
     @abstractmethod
     async def __call__(self, inputs: list[str]) -> list[Vector]: ...

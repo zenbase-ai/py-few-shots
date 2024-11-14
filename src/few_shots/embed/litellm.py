@@ -1,10 +1,10 @@
 from typing import Any, Awaitable, Callable
 
 from few_shots.types import Vector
-from .base import AsyncEmbedder, Embedder
+from .base import AsyncEmbed, Embed
 
 
-class LiteLLMEmbedder(Embedder):
+class LiteLLMEmbed(Embed):
     def __init__(self, embedder: Callable[[str], Any]):
         self.embedder = embedder
 
@@ -13,7 +13,7 @@ class LiteLLMEmbedder(Embedder):
         return [r["vector"] for r in response["data"]]
 
 
-class AsyncLiteLLMEmbedder(AsyncEmbedder):
+class AsyncLiteLLMEmbed(AsyncEmbed):
     def __init__(self, embedder: Callable[[str], Awaitable[Any]]):
         self.embedder = embedder
 

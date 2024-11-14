@@ -10,13 +10,13 @@ from few_shots.types import (
     is_io_value,
 )
 
-from .embed.base import AsyncEmbedder
+from .embed.base import AsyncEmbed
 from .store.base import AsyncStore
 
 
 @dataclass
 class AsyncFewShots:
-    embed: AsyncEmbedder
+    embed: AsyncEmbed
     store: AsyncStore
 
     @overload

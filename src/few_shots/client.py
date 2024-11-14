@@ -10,13 +10,13 @@ from few_shots.types import (
     is_io_value,
 )
 
-from .embed.base import Embedder
+from .embed.base import Embed
 from .store.base import Store
 
 
 @dataclass
 class FewShots:
-    embed: Embedder
+    embed: Embed
     store: Store
 
     @overload

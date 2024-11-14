@@ -1,10 +1,10 @@
 from sentence_transformers import SentenceTransformer
 
 from few_shots.types import Vector
-from .base import Embedder
+from .base import Embed
 
 
-class TransformersEmbedder(Embedder):
+class TransformersEmbed(Embed):
     model: SentenceTransformer
 
     def __init__(self, model: SentenceTransformer):
