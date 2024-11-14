@@ -31,7 +31,7 @@ asttokens==2.4.1
 async-timeout==4.0.3
     # via aiohttp
 asyncer==0.0.8
-    # via best-shot
+    # via few-shots
 attrs==24.2.0
     # via aiohttp
     # via jsonschema
@@ -218,10 +218,10 @@ multidict==6.1.0
 networkx==3.4.2
     # via torch
 numpy==1.26.4
-    # via best-shot
     # via chroma-hnswlib
     # via chromadb
     # via faiss-cpu
+    # via few-shots
     # via onnxruntime
     # via pandas
     # via qdrant-client
@@ -407,7 +407,7 @@ scipy==1.14.1
     # via scikit-learn
     # via sentence-transformers
 sentence-transformers==3.2.1
-    # via best-shot
+    # via few-shots
 setuptools==75.3.0
     # via grpcio-tools
     # via pymilvus
@@ -461,7 +461,7 @@ traitlets==5.14.3
     # via ipython
     # via matplotlib-inline
 transformers==4.46.2
-    # via best-shot
+    # via few-shots
     # via sentence-transformers
 trio==0.27.0
 typer==0.13.0
@@ -488,7 +488,7 @@ typing-extensions==4.12.2
 tzdata==2024.2
     # via pandas
 ujson==5.10.0
-    # via best-shot
+    # via few-shots
     # via pymilvus
 urllib3==2.2.3
     # via docker
