@@ -6,7 +6,7 @@ from few_shots.types import (
     dump_io_value,
     Datum,
     IO,
-    ShotWithSimilarity,
+    ScoredShot,
     is_io_value,
 )
 
@@ -106,6 +106,6 @@ class FewShots:
         *,
         namespace: str = "default",
         limit: int = 5,
-    ) -> list[ShotWithSimilarity]:
+    ) -> list[ScoredShot]:
         [vector] = self.embed([dump_io_value(inputs)])
         return self.store.list(vector, namespace, limit)

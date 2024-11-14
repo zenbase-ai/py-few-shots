@@ -3,10 +3,10 @@ from chromadb.api.async_client import AsyncCollection
 
 from few_shots.types import (
     dump_io_value,
-    Vector,
     parse_io_value,
+    ScoredShot,
     Shot,
-    ShotWithSimilarity,
+    Vector,
 )
 
 from .base import Store
@@ -14,7 +14,7 @@ from .base import Store
 
 class ChromaBase(Store):
     @staticmethod
-    def _query_to_shots_list(results: dict) -> list[ShotWithSimilarity]:
+    def _query_to_shots_list(results: dict) -> list[ScoredShot]:
         return [
             (
                 Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id),
@@ -57,7 +57,7 @@ class ChromaStore(ChromaBase):
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> list[ShotWithSimilarity]:
+    ) -> list[ScoredShot]:
         results = self.collection.query(
             query_embeddings=[vector],
             n_results=limit,
@@ -91,7 +91,7 @@ class AsyncChromaStore(ChromaBase):
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> list[ShotWithSimilarity]:
+    ) -> list[ScoredShot]:
         results = await self.collection.query(
             query_embeddings=[vector],
             n_results=limit,

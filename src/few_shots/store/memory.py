@@ -3,9 +3,7 @@ from operator import itemgetter
 
 import numpy as np
 
-from few_shots.utils.asyncio import asyncify_class
-
-from .base import Vector, Shot, ShotWithSimilarity, Store
+from .base import ScoredShot, Shot, Store, Vector
 
 
 def cosine_similarity(a: Vector, b: Vector) -> float:
@@ -30,18 +28,9 @@ class MemoryStore(Store):
     def clear(self, namespace: str):
         self._storage[namespace].clear()
 
-    def list(
-        self,
-        vector: Vector,
-        namespace: str,
-        limit: int,
-    ) -> list[ShotWithSimilarity]:
-        shots_with_similarities = [
+    def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
+        scored_shots = [
             (shot, 1 - cosine_similarity(vector, emb))
             for (shot, emb) in self._storage[namespace].values()
         ]
-        return sorted(shots_with_similarities, key=itemgetter(1), reverse=True)[:limit]
-
-
-@asyncify_class
-class AsyncMemoryStore(MemoryStore): ...
+        return sorted(scored_shots, key=itemgetter(1), reverse=True)[:limit]

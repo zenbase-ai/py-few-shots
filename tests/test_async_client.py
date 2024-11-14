@@ -2,15 +2,30 @@ import pytest
 from sentence_transformers import SentenceTransformer
 
 from few_shots.async_client import AsyncFewShots
-from few_shots.embed.transformers import AsyncTransformersEmbedder
-from few_shots.store.memory import AsyncMemoryStore
+from few_shots.embed.transformers import TransformersEmbedder
+from few_shots.store.memory import MemoryStore
 from few_shots.types import Shot
+from few_shots.utils.asyncio import asyncify_class
+
+
+@asyncify_class
+class AsyncTransformersEmbedder(TransformersEmbedder):
+    """
+    Async version of TransformersEmbedder for testing only.
+    """
+
+
+@asyncify_class
+class AsyncMemoryStore(MemoryStore):
+    """
+    Async version of MemoryStore for testing only.
+    """
 
 
 @pytest.fixture(scope="function")
 def client():
     return AsyncFewShots(
-        embed=AsyncTransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
+        embed=AsyncTransformersEmbedder(SentenceTransformer("all-MiniLM-L6-v2")),
         store=AsyncMemoryStore(),
     )
 

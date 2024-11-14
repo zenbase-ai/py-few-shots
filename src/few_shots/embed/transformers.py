@@ -1,19 +1,14 @@
-from dataclasses import dataclass
-
 from sentence_transformers import SentenceTransformer
 
 from few_shots.types import Vector
-from few_shots.utils.asyncio import asyncify_class
-from .base import AsyncEmbedder, Embedder
+from .base import Embedder
 
 
-@dataclass
 class TransformersEmbedder(Embedder):
     model: SentenceTransformer
 
+    def __init__(self, model: SentenceTransformer):
+        self.model = model
+
     def __call__(self, inputs: list[str]) -> list[Vector]:
         return self.model.encode(inputs).tolist()
-
-
-@asyncify_class
-class AsyncTransformersEmbedder(TransformersEmbedder, AsyncEmbedder): ...

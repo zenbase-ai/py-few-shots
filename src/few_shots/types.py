@@ -49,7 +49,4 @@ class Shot:
         return dump_io_value(self.inputs)
 
 
-ShotWithSimilarity = NamedTuple(
-    "ShotWithSimilarity",
-    [("shot", Shot), ("similarity", float)],
-)
+ScoredShot = NamedTuple("ScoredShot", [("shot", Shot), ("score", float)])

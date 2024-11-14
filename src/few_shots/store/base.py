@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from few_shots.types import Vector, Shot, ShotWithSimilarity
+from few_shots.types import Vector, Shot, ScoredShot
 
 
 class Store:
@@ -28,7 +28,7 @@ class Store:
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> list[ShotWithSimilarity]: ...
+    ) -> list[ScoredShot]: ...
 
 
 class AsyncStore(Store):
@@ -52,4 +52,4 @@ class AsyncStore(Store):
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> list[ShotWithSimilarity]: ...
+    ) -> list[ScoredShot]: ...

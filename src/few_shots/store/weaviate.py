@@ -1,4 +1,3 @@
-from typing import Mapping
 from weaviate.classes.data import DataObject
 from weaviate.classes.query import Filter
 from weaviate.collections import Collection, CollectionAsync
@@ -6,10 +5,10 @@ from weaviate.collections.classes.internal import QueryReturnType
 
 from few_shots.types import (
     dump_io_value,
-    Vector,
     parse_io_value,
+    ScoredShot,
     Shot,
-    ShotWithSimilarity,
+    Vector,
 )
 
 from .base import Store
@@ -36,7 +35,7 @@ class WeaviateBase(Store):
         ]
 
     @staticmethod
-    def _response_to_shots_list(response: QueryReturnType) -> list[ShotWithSimilarity]:
+    def _response_to_shots_list(response: QueryReturnType) -> list[ScoredShot]:
         return [
             (
                 Shot(
@@ -84,7 +83,7 @@ class WeaviateStore(WeaviateBase):
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> list[ShotWithSimilarity]:
+    ) -> list[ScoredShot]:
         response = self.collection.query.near_vector(
             vector,
             filters=self._filter(namespace),
@@ -121,7 +120,7 @@ class AsyncWeaviateStore(WeaviateBase):
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> list[ShotWithSimilarity]:
+    ) -> list[ScoredShot]:
         response = await self.collection.query.near_vector(
             vector,
             filters=self._filter(namespace),

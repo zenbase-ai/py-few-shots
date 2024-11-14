@@ -16,10 +16,10 @@ from qdrant_client.models import (
 
 from few_shots.types import (
     dump_io_value,
-    Vector,
     parse_io_value,
+    ScoredShot,
     Shot,
-    ShotWithSimilarity,
+    Vector,
 )
 
 from .base import Store
@@ -79,7 +79,7 @@ class QdrantBase(Store):
     def _search_to_shots_list(
         self,
         results: List[ScoredPoint],
-    ) -> List[ShotWithSimilarity]:
+    ) -> List[ScoredShot]:
         return [
             (
                 Shot(
@@ -123,7 +123,7 @@ class QdrantStore(QdrantBase):
         vector: Vector,
         namespace: str,
         limit: int,
-    ) -> List[ShotWithSimilarity]:
+    ) -> List[ScoredShot]:
         results = self.client.search(
             collection_name=namespace,
             query_vector=vector,
@@ -160,7 +160,7 @@ class AsyncQdrantStore(QdrantBase):
 
     async def list(
         self, vector: Vector, namespace: str, limit: int
-    ) -> List[ShotWithSimilarity]:
+    ) -> List[ScoredShot]:
         results = await self.client.search(
             collection_name=namespace,
             query_vector=vector,

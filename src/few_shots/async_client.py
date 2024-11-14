@@ -6,7 +6,7 @@ from few_shots.types import (
     dump_io_value,
     Datum,
     IO,
-    ShotWithSimilarity,
+    ScoredShot,
     is_io_value,
 )
 
@@ -100,6 +100,6 @@ class AsyncFewShots:
         *,
         namespace: str = "default",
         limit: int = 5,
-    ) -> list[ShotWithSimilarity]:
+    ) -> list[ScoredShot]:
         [vector] = await self.embed([dump_io_value(inputs)])
         return await self.store.list(vector, namespace, limit)
