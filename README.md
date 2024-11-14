@@ -15,7 +15,6 @@ Ever wished your AI model had a better memory? Meet FewShot - the simple yet pow
 - 🤖 Enhance your chatbot with dynamic example retrieval
 - 📚 Build a self-improving knowledge base
 - 🎯 Implement context-aware few-shot learning
-- 🧪 Test and experiment with different few-shot strategies
 
 ## 🛠️ Core Components
 
@@ -50,6 +49,18 @@ for shot, similarity in results:
     print(f"Found match (similarity: {similarity:.2f}):")
     print(f"Q: {shot.inputs}")
     print(f"A: {shot.outputs}")
+
+# Use with your LLM
+from few_shots.utils.format import shots_to_messages
+
+openai.chat.completions.create(
+    ...,
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        *shots_to_messages(best_shots),
+        {"role": "user", "content": "What's the recipe for pizza?"},
+    ]
+)
 ```
 
 ## 🔧 Installation
@@ -89,7 +100,7 @@ await shots.add(
 )
 
 # Search asynchronously
-results = await shots.list("How's the weather today?", limit=1)
+best_shots = await shots.list("How's the weather today?", limit=1)
 ```
 
 ### Using LiteLLM for [Embeddings](https://docs.litellm.ai/docs/embedding/supported_embedding)

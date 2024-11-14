@@ -1,28 +1,31 @@
 from itertools import chain
-from typing import Iterable
+from typing import overload
 
-import ujson
-
-from few_shots.types import IO, Shot
+from few_shots.types import ScoredShot, Shot, dump_io_value
 
 
-def to_str(value: IO) -> str:
-    if isinstance(value, dict):
-        return ujson.dumps(value)
-    return str(value)
+@overload
+def shots_to_messages(scored_shots: list[ScoredShot]) -> list[dict]: ...
 
 
-def flatten(iterable: Iterable[Iterable]) -> list:
-    return list(chain.from_iterable(iterable))
+@overload
+def shots_to_messages(shots: list[Shot]) -> list[dict]: ...
 
 
-def shots_to_messages(shots: list[Shot]) -> list[dict]:
-    return flatten(
-        [
+def shots_to_messages(shots: list[ScoredShot] | list[Shot]) -> list[dict]:
+    if not shots:
+        return []
+
+    sample = shots[0]
+    if isinstance(sample, ScoredShot):
+        shots = [shot for shot, _ in shots]
+
+    return list(
+        chain.from_iterable(
             [
-                {"role": "user", "content": to_str(shot.inputs)},
-                {"role": "assistant", "content": to_str(shot.outputs)},
+                {"role": "user", "content": dump_io_value(shot.inputs)},
+                {"role": "assistant", "content": dump_io_value(shot.outputs)},
             ]
             for shot in shots
-        ]
+        )
     )

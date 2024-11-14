@@ -1,14 +1,5 @@
 from few_shots.types import Shot
-from few_shots.utils.format import shots_to_messages, to_str
-
-
-def test_to_str_string():
-    assert to_str("test") == "test"
-
-
-def test_to_str_dict():
-    data = {"key": "value"}
-    assert to_str(data) == '{"key":"value"}'
+from few_shots.utils.format import shots_to_messages
 
 
 def test_shots_to_messages_empty():
