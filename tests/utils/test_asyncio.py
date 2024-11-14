@@ -1,6 +1,6 @@
 import pytest
 
-from best_shot.utils.asyncio import (
+from few_shots.utils.asyncio import (
     asyncify_class,
     syncify_class,
     is_target,

@@ -1,5 +1,5 @@
-from best_shot.types import Shot
-from best_shot.utils.format import shots_to_messages, to_str
+from few_shots.types import Shot
+from few_shots.utils.format import shots_to_messages, to_str
 
 
 def test_to_str_string():

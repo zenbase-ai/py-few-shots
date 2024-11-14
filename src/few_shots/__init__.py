@@ -1,11 +1,11 @@
-from .async_client import AsyncBestShots
-from .client import BestShots
+from .async_client import AsyncFewShots
+from .client import FewShots
 from .types import Shot, Embedding, ShotWithSimilarity, IO, Datum
 from .utils.format import shots_to_messages
 
 __all__ = [
-    "AsyncBestShots",
-    "BestShots",
+    "AsyncFewShots",
+    "FewShots",
     "Datum",
     "Embedding",
     "IO",

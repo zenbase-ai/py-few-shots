@@ -1,4 +1,4 @@
-from best_shot.types import Shot, dump_io_value, id_io_value, is_io_value
+from few_shots.types import Shot, dump_io_value, id_io_value, is_io_value
 
 
 def test_is_io_value():

@@ -1,6 +1,6 @@
 [project]
-name = "best-shot"
-version = "0.1.0"
+name = "few-shots"
+version = "0.1.1"
 description = "Take your best shot"
 authors = [
     { name = "cyrus", email = "cyrus@zenbase.ai" },
@@ -43,4 +43,4 @@ dev-dependencies = [
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/best_shot"]
+packages = ["src/few_shots"]

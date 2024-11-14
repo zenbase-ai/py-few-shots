@@ -1,9 +1,9 @@
-# 🎯 BestShot: The best few shots with LLMs
+# 🎯 FewShots: The best few shots with LLMs
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Ever wished your AI model had a better memory? Meet BestShot - the simple yet powerful library for managing and retrieving few-shot examples with style! 🧠✨
+Ever wished your AI model had a better memory? Meet FewShot - the simple yet powerful library for managing and retrieving few-shot examples with style! 🧠✨
 
 ## 🌟 Features
 
@@ -15,12 +15,12 @@ Ever wished your AI model had a better memory? Meet BestShot - the simple yet po
 
 ```python
 from sentence_transformers import SentenceTransformer # Can also use OpenAI, etc.
-from best_shot.client import BestShot
-from best_shot.embed.transformers import TransformersEmbedder
-from best_shot.store.memory import MemoryStore
+from few_shots.client import FewShot
+from few_shots.embed.transformers import TransformersEmbedder
+from few_shots.store.memory import MemoryStore
 
-# Create a BestShot client
-client = BestShot(
+# Create a FewShot client
+client = FewShot(
     embed=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
     store=MemoryStore()
 )
@@ -65,9 +65,9 @@ results = client.list({"type": "greeting", "language": "English"})
 ### Async Support
 
 ```python
-from best_shot.async_client import AsyncBestShot
+from few_shots.async_client import AsyncFewShot
 
-client = AsyncBestShot(embed=async_embedder, store=async_store)
+client = AsyncFewShot(embed=async_embedder, store=async_store)
 
 # Add examples asynchronously
 await client.add(
@@ -84,12 +84,12 @@ results = await client.list("How's the weather today?", limit=1)
 ```python
 from functools import partial
 from litellm import aembedding
-from fewshot import AsyncBestShot
-from best_shot.embed.litellm import AsyncLiteLLMEmbedder
+from fewshot import AsyncFewShot
+from few_shots.embed.litellm import AsyncLiteLLMEmbedder
 
-client = AsyncBestShot(
+client = AsyncFewShot(
     embed=AsyncLiteLLMEmbedder(
-        embed=partial(aembedding, model="...", **kwargs),
+        partial(aembedding, model="...", **kwargs),
     ),
     store=MemoryStore()
 )
@@ -97,7 +97,7 @@ client = AsyncBestShot(
 
 ## 🛠️ Core Components
 
-- **Shot**: The fundamental unit representing an input-output pair with a unique ID (you can use your own ID or let BestShot hash the inputs)
+- **Shot**: The fundamental unit representing an input-output pair with a unique ID (you can use your own ID or let FewShot hash the inputs)
 - **Embedder**: Converts inputs into vector embeddings for similarity search
 - **Store**: Manages storage and retrieval of examples
 - **Client**: Ties everything together with a clean, simple interface

@@ -3,7 +3,7 @@ from weaviate.classes.query import Filter
 from weaviate.collections import Collection, CollectionAsync
 from weaviate.collections.classes.internal import QuerySearchReturnType
 
-from best_shot.types import (
+from few_shots.types import (
     dump_io_value,
     Embedding,
     parse_io_value,

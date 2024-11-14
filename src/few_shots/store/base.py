@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from best_shot.types import Embedding, Shot, ShotWithSimilarity
+from few_shots.types import Embedding, Shot, ShotWithSimilarity
 
 
 class Store:

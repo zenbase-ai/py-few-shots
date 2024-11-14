@@ -1,22 +1,22 @@
 import pytest
 from sentence_transformers import SentenceTransformer
 
-from best_shot.async_client import AsyncBestShots
-from best_shot.embed.transformers import AsyncTransformersEmbedder
-from best_shot.store.memory import AsyncMemoryStore
-from best_shot.types import Shot
+from few_shots.async_client import AsyncFewShots
+from few_shots.embed.transformers import AsyncTransformersEmbedder
+from few_shots.store.memory import AsyncMemoryStore
+from few_shots.types import Shot
 
 
 @pytest.fixture(scope="function")
 def client():
-    return AsyncBestShots(
+    return AsyncFewShots(
         embed=AsyncTransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
         store=AsyncMemoryStore(),
     )
 
 
 @pytest.mark.anyio
-async def test_functional_flow(client: AsyncBestShots):
+async def test_functional_flow(client: AsyncFewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
 
@@ -40,7 +40,7 @@ async def test_functional_flow(client: AsyncBestShots):
 
 
 @pytest.mark.anyio
-async def test_dispatch(client: AsyncBestShots):
+async def test_dispatch(client: AsyncFewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
 
@@ -70,7 +70,7 @@ async def test_dispatch(client: AsyncBestShots):
 
 
 @pytest.mark.anyio
-async def test_string_flow(client: AsyncBestShots):
+async def test_string_flow(client: AsyncFewShots):
     inputs = "User question..."
     outputs = "AI answer..."
 

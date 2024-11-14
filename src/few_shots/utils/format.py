@@ -3,7 +3,7 @@ from typing import Iterable
 
 import ujson
 
-from best_shot.types import IO, Shot
+from few_shots.types import IO, Shot
 
 
 def to_str(value: IO) -> str:

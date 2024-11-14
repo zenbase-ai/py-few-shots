@@ -3,7 +3,7 @@ import pytest
 from chromadb import Client
 from chromadb.api.client import ClientAPI
 
-from best_shot.store.chroma import ChromaStore, Collection, Shot
+from few_shots.store.chroma import ChromaStore, Collection, Shot
 
 
 @pytest.fixture

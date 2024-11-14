@@ -14,7 +14,7 @@ from qdrant_client.models import (
     HasIdCondition,
 )
 
-from best_shot.types import (
+from few_shots.types import (
     dump_io_value,
     Embedding,
     parse_io_value,

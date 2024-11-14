@@ -1,8 +1,8 @@
 import pytest
 import weaviate
 
-from best_shot.store.weaviate import WeaviateStore
-from best_shot.types import Shot, id_io_value
+from few_shots.store.weaviate import WeaviateStore
+from few_shots.types import Shot, id_io_value
 
 
 @pytest.fixture(scope="module")

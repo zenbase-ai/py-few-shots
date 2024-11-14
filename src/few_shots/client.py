@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import overload
 
-from best_shot.types import (
+from few_shots.types import (
     Shot,
     dump_io_value,
     Datum,
@@ -15,7 +15,7 @@ from .store.base import Store
 
 
 @dataclass
-class BestShots:
+class FewShots:
     embed: Embedder
     store: Store
 

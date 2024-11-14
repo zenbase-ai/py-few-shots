@@ -1,21 +1,21 @@
 import pytest
 from sentence_transformers import SentenceTransformer
 
-from best_shot.client import BestShots
-from best_shot.embed.transformers import TransformersEmbedder
-from best_shot.store.memory import MemoryStore
-from best_shot.types import Shot
+from few_shots.client import FewShots
+from few_shots.embed.transformers import TransformersEmbedder
+from few_shots.store.memory import MemoryStore
+from few_shots.types import Shot
 
 
 @pytest.fixture(scope="function")
 def client():
-    return BestShots(
+    return FewShots(
         embed=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
         store=MemoryStore(),
     )
 
 
-def test_functional_flow(client: BestShots):
+def test_functional_flow(client: FewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
 
@@ -38,7 +38,7 @@ def test_functional_flow(client: BestShots):
     assert [] == client.list(inputs)
 
 
-def test_dispatch(client: BestShots):
+def test_dispatch(client: FewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
 
@@ -67,7 +67,7 @@ def test_dispatch(client: BestShots):
     assert [] == client.list(inputs)
 
 
-def test_string_flow(client: BestShots):
+def test_string_flow(client: FewShots):
     inputs = "User question..."
     outputs = "AI answer..."
 

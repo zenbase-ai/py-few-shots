@@ -1,8 +1,8 @@
 from qdrant_client.local.qdrant_local import QdrantLocal
 import pytest
 
-from best_shot.store.qdrant import QdrantStore, Shot, Distance
-from best_shot.types import id_io_value
+from few_shots.store.qdrant import QdrantStore, Shot, Distance
+from few_shots.types import id_io_value
 
 
 @pytest.fixture

@@ -3,7 +3,7 @@ from operator import itemgetter
 
 import numpy as np
 
-from best_shot.utils.asyncio import asyncify_class
+from few_shots.utils.asyncio import asyncify_class
 
 from .base import Embedding, Shot, ShotWithSimilarity, Store
 
