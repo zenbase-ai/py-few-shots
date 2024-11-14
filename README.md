@@ -108,6 +108,16 @@ shots = AsyncFewShots(
 )
 ```
 
+### Using different Vector Stores
+
+```python
+from few_shots.store.chroma import ChromaStore, AsyncChromaStore
+from few_shots.store.qdrant import QdrantStore, AsyncQdrantStore
+from few_shots.store.weaviate import WeaviateStore, AsyncWeaviateStore
+from few_shots.store.milvus import MilvusStore
+from few_shots.store.pg import PGStore, AsyncPGStore # TODO
+```
+
 ## 🤝 Contributing
 
 We love contributions! Feel free to:
