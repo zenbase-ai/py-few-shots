@@ -1,26 +1,30 @@
-from qdrant_client.local.qdrant_local import QdrantLocal
 import pytest
+import weaviate
 
-from best_shot.store.qdrant import QdrantStore, Shot, Distance
-from best_shot.types import id_io_value
+from best_shot.store.weaviate import WeaviateStore
+from best_shot.types import Shot, id_io_value
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def client():
-    return QdrantLocal(":memory:")
+    with weaviate.connect_to_embedded() as c:
+        yield c
 
 
 @pytest.fixture
-def store(client: QdrantLocal):
-    s = QdrantStore(client=client, collection_name="test")
-    client.create_collection(**s.collection_config(2, Distance.COSINE))
-    client.create_payload_index(**s.payload_config())
-    yield s
-    client.delete_payload_index("test", "namespace")
-    client.delete_collection("test")
+def collection(client: weaviate.WeaviateClient):
+    try:
+        return client.collections.get("test")
+    except weaviate.exceptions.WeaviateBaseError:
+        return client.collections.create("test")
 
 
-def test_crud(store: QdrantStore):
+@pytest.fixture
+def store(collection: weaviate.collections.Collection):
+    return WeaviateStore(collection)
+
+
+def test_crud(store: WeaviateStore):
     shots = [
         Shot("input1", "output1", id_io_value("id1")),
         Shot("input2", "output2", id_io_value("id2")),
@@ -45,7 +49,7 @@ def test_crud(store: QdrantStore):
     assert len(results) == 0
 
 
-def test_structured_io(store: QdrantStore):
+def test_structured_io(store: WeaviateStore):
     shots = [
         Shot({"key": "input1"}, {"key": "output1"}, id_io_value("id1")),
         Shot({"key": "input2"}, {"key": "output2"}, id_io_value("id2")),
