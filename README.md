@@ -15,12 +15,12 @@ Ever wished your AI model had a better memory? Meet FewShot - the simple yet pow
 
 ```python
 from sentence_transformers import SentenceTransformer # Can also use OpenAI, etc.
-from few_shots.client import FewShot
+from few_shots.client import FewShots
 from few_shots.embed.transformers import TransformersEmbedder
 from few_shots.store.memory import MemoryStore
 
 # Create a FewShot client
-client = FewShot(
+client = FewShots(
     embed=TransformersEmbedder(model=SentenceTransformer("all-MiniLM-L6-v2")),
     store=MemoryStore()
 )
@@ -42,9 +42,9 @@ for shot, similarity in results:
 ## 🔧 Installation
 
 ```bash
-pip install best-shot
-rye add best-shot
-poetry add best-shot
+pip install few-shots
+rye add few-shots
+poetry add few-shots
 ```
 
 ## 🎮 Usage Examples
@@ -67,7 +67,7 @@ results = client.list({"type": "greeting", "language": "English"})
 ```python
 from few_shots.async_client import AsyncFewShot
 
-client = AsyncFewShot(embed=async_embedder, store=async_store)
+client = AsyncFewShots(embed=async_embedder, store=async_store)
 
 # Add examples asynchronously
 await client.add(
@@ -84,10 +84,10 @@ results = await client.list("How's the weather today?", limit=1)
 ```python
 from functools import partial
 from litellm import aembedding
-from fewshot import AsyncFewShot
+from few_shots import AsyncFewShots
 from few_shots.embed.litellm import AsyncLiteLLMEmbedder
 
-client = AsyncFewShot(
+client = AsyncFewShots(
     embed=AsyncLiteLLMEmbedder(
         partial(aembedding, model="...", **kwargs),
     ),
