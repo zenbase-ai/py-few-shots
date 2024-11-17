@@ -49,7 +49,7 @@ class WeaviateBase(Store):
         ]
 
     @staticmethod
-    def _filter(namespace: str, ids: list[str] | None = None) -> Filter:
+    def _remove_filter(namespace: str, ids: list[str] | None = None) -> Filter:
         filters = Filter.by_property("namespace").equal(namespace)
         if ids:
             filters &= Filter.by_id().contains_any(ids)
@@ -73,10 +73,10 @@ class WeaviateStore(WeaviateBase):
         )
 
     def remove(self, ids: list[str], namespace: str):
-        self.collection.data.delete_many(self._filter(namespace, ids))
+        self.collection.data.delete_many(self._remove_filter(namespace, ids))
 
     def clear(self, namespace: str):
-        self.collection.data.delete_many(self._filter(namespace))
+        self.collection.data.delete_many(self._remove_filter(namespace))
 
     def list(
         self,
@@ -86,7 +86,7 @@ class WeaviateStore(WeaviateBase):
     ) -> list[ScoredShot]:
         response = self.collection.query.near_vector(
             vector,
-            filters=self._filter(namespace),
+            filters=self._remove_filter(namespace),
             limit=limit,
         )
 
@@ -110,10 +110,10 @@ class AsyncWeaviateStore(WeaviateBase):
         )
 
     async def remove(self, ids: list[str], namespace: str):
-        await self.collection.data.delete_many(self._filter(namespace, ids))
+        await self.collection.data.delete_many(self._remove_filter(namespace, ids))
 
     async def clear(self, namespace: str):
-        await self.collection.data.delete_many(self._filter(namespace))
+        await self.collection.data.delete_many(self._remove_filter(namespace))
 
     async def list(
         self,
@@ -123,7 +123,7 @@ class AsyncWeaviateStore(WeaviateBase):
     ) -> list[ScoredShot]:
         response = await self.collection.query.near_vector(
             vector,
-            filters=self._filter(namespace),
+            filters=self._remove_filter(namespace),
             limit=limit,
         )
 

@@ -69,6 +69,9 @@ class ChromaStore(ChromaBase):
 class AsyncChromaStore(ChromaBase):
     collection: AsyncCollection
 
+    def __init__(self, collection: AsyncCollection):
+        self.collection = collection
+
     async def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
         await self.collection.add(
             ids=[shot.id for shot in shots],

@@ -31,7 +31,12 @@ class QdrantBase(Store):
     def __init__(self, collection_name: str):
         self.collection_name = collection_name
 
-    def collection_config(self, size: int, distance: Distance, payload_m: int = 16):
+    def _create_collection_kwargs(
+        self,
+        size: int,
+        distance: Distance,
+        payload_m: int = 16,
+    ):
         """
         Use these as kwargs for `.create_collection` for optimal performance.
         """
@@ -41,7 +46,7 @@ class QdrantBase(Store):
             hnsw_config=HnswConfigDiff(payload_m=payload_m, m=0),
         )
 
-    def payload_config(self):
+    def _create_payload_index_kwargs(self):
         """
         Use these as kwargs for `.create_payload_index` for optimal performance.
         """
@@ -51,14 +56,15 @@ class QdrantBase(Store):
             field_schema=KeywordIndexParams(type="keyword", is_tenant=True),
         )
 
-    def _filter(self, namespace: str, ids: list[str] | None = None) -> Filter:
+    @staticmethod
+    def _remove_filter(namespace: str, ids: list[str] | None = None) -> Filter:
         must = [FieldCondition(key="namespace", match=MatchValue(value=namespace))]
         if ids:
             must.append(HasIdCondition(has_id=ids))
         return Filter(must=must)
 
+    @staticmethod
     def _shots_to_point_structs(
-        self,
         shots: List[Shot],
         vectors: List[Vector],
         namespace: str,
@@ -76,8 +82,8 @@ class QdrantBase(Store):
             for shot, vector in zip(shots, vectors)
         ]
 
+    @staticmethod
     def _search_to_shots_list(
-        self,
         results: List[ScoredPoint],
     ) -> List[ScoredShot]:
         return [
@@ -100,6 +106,17 @@ class QdrantStore(QdrantBase):
         super().__init__(collection_name)
         self.client = client
 
+    def setup(self, size: int, distance: Distance, payload_m: int = 16):
+        self.client.create_collection(
+            **self._create_collection_kwargs(size, distance, payload_m)
+        )
+        self.client.create_payload_index(
+            **self._create_payload_index_kwargs(),
+        )
+
+    def teardown(self):
+        self.client.delete_collection(self.collection_name)
+
     def add(self, shots: List[Shot], vectors: List[Vector], namespace: str):
         self.client.upsert(
             collection_name=self.collection_name,
@@ -109,13 +126,13 @@ class QdrantStore(QdrantBase):
     def remove(self, ids: List[str], namespace: str):
         self.client.delete(
             collection_name=self.collection_name,
-            points_selector=self._filter(namespace, ids),
+            points_selector=self._remove_filter(namespace, ids),
         )
 
     def clear(self, namespace: str):
         self.client.delete(
             collection_name=self.collection_name,
-            points_selector=self._filter(namespace),
+            points_selector=self._remove_filter(namespace),
         )
 
     def list(
@@ -127,7 +144,7 @@ class QdrantStore(QdrantBase):
         results = self.client.search(
             collection_name=namespace,
             query_vector=vector,
-            query_filter=self._filter(namespace),
+            query_filter=self._remove_filter(namespace),
             limit=limit,
         )
         return self._search_to_shots_list(results)
@@ -140,6 +157,17 @@ class AsyncQdrantStore(QdrantBase):
         super().__init__(collection_name)
         self.client = client
 
+    async def setup(self, size: int, distance: Distance, payload_m: int = 16):
+        await self.client.create_collection(
+            **self._create_collection_kwargs(size, distance, payload_m)
+        )
+        await self.client.create_payload_index(
+            **self._create_payload_index_kwargs(),
+        )
+
+    async def teardown(self):
+        await self.client.delete_collection(self.collection_name)
+
     async def add(self, shots: List[Shot], vectors: List[Vector], namespace: str):
         await self.client.upsert(
             collection_name=namespace,
@@ -149,13 +177,13 @@ class AsyncQdrantStore(QdrantBase):
     async def remove(self, ids: List[str], namespace: str):
         await self.client.delete(
             collection_name=namespace,
-            points_selector=self._filter(namespace, ids),
+            points_selector=self._remove_filter(namespace, ids),
         )
 
     async def clear(self, namespace: str):
         await self.client.delete(
             collection_name=namespace,
-            points_selector=self._filter(namespace),
+            points_selector=self._remove_filter(namespace),
         )
 
     async def list(
@@ -164,7 +192,7 @@ class AsyncQdrantStore(QdrantBase):
         results = await self.client.search(
             collection_name=namespace,
             query_vector=vector,
-            query_filter=self._filter(namespace),
+            query_filter=self._remove_filter(namespace),
             limit=limit,
         )
         return self._search_to_shots_list(results)
