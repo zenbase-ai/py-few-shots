@@ -6,7 +6,11 @@ authors = [
     { name = "cyrus", email = "cyrus@zenbase.ai" },
     { name = "behradkhorram", email = "behrad@zenbase.ai" }
 ]
-dependencies = ["ujson>=5.10.0", "asyncer>=0.0.8"]
+dependencies = [
+    "ujson>=5.10.0",
+    "asyncer>=0.0.8",
+    "sorcery>=0.2.2",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 

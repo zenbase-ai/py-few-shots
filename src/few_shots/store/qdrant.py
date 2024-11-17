@@ -13,6 +13,7 @@ from qdrant_client.models import (
     VectorParams,
     HasIdCondition,
 )
+from sorcery import dict_of
 
 from few_shots.types import (
     dump_io_value,
@@ -21,6 +22,7 @@ from few_shots.types import (
     Shot,
     Vector,
 )
+from few_shots.utils.datetime import utcnow
 
 from .base import Store
 
@@ -57,7 +59,7 @@ class QdrantBase(Store):
         )
 
     @staticmethod
-    def _remove_filter(namespace: str, ids: list[str] | None = None) -> Filter:
+    def _remove_selector(namespace: str, ids: list[str] | None = None) -> Filter:
         must = [FieldCondition(key="namespace", match=MatchValue(value=namespace))]
         if ids:
             must.append(HasIdCondition(has_id=ids))
@@ -69,23 +71,23 @@ class QdrantBase(Store):
         vectors: List[Vector],
         namespace: str,
     ) -> List[PointStruct]:
+        updated_at = utcnow()
         return [
             PointStruct(
                 id=shot.id,
                 vector=vector,
-                payload={
-                    "namespace": namespace,
-                    "inputs": dump_io_value(shot.inputs),
-                    "outputs": dump_io_value(shot.outputs),
-                },
+                payload=dict_of(
+                    namespace,
+                    updated_at,
+                    inputs=dump_io_value(shot.inputs),
+                    outputs=dump_io_value(shot.outputs),
+                ),
             )
             for shot, vector in zip(shots, vectors)
         ]
 
     @staticmethod
-    def _search_to_shots_list(
-        results: List[ScoredPoint],
-    ) -> List[ScoredShot]:
+    def _search_to_shots_list(results: List[ScoredPoint]) -> List[ScoredShot]:
         return [
             (
                 Shot(
@@ -126,13 +128,13 @@ class QdrantStore(QdrantBase):
     def remove(self, ids: List[str], namespace: str):
         self.client.delete(
             collection_name=self.collection_name,
-            points_selector=self._remove_filter(namespace, ids),
+            points_selector=self._remove_selector(namespace, ids),
         )
 
     def clear(self, namespace: str):
         self.client.delete(
             collection_name=self.collection_name,
-            points_selector=self._remove_filter(namespace),
+            points_selector=self._remove_selector(namespace),
         )
 
     def list(
@@ -144,7 +146,7 @@ class QdrantStore(QdrantBase):
         results = self.client.search(
             collection_name=namespace,
             query_vector=vector,
-            query_filter=self._remove_filter(namespace),
+            query_filter=self._remove_selector(namespace),
             limit=limit,
         )
         return self._search_to_shots_list(results)
@@ -177,13 +179,13 @@ class AsyncQdrantStore(QdrantBase):
     async def remove(self, ids: List[str], namespace: str):
         await self.client.delete(
             collection_name=namespace,
-            points_selector=self._remove_filter(namespace, ids),
+            points_selector=self._remove_selector(namespace, ids),
         )
 
     async def clear(self, namespace: str):
         await self.client.delete(
             collection_name=namespace,
-            points_selector=self._remove_filter(namespace),
+            points_selector=self._remove_selector(namespace),
         )
 
     async def list(
@@ -192,7 +194,7 @@ class AsyncQdrantStore(QdrantBase):
         results = await self.client.search(
             collection_name=namespace,
             query_vector=vector,
-            query_filter=self._remove_filter(namespace),
+            query_filter=self._remove_selector(namespace),
             limit=limit,
         )
         return self._search_to_shots_list(results)

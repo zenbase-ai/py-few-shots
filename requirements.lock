@@ -10,6 +10,8 @@
 -e file:.
 anyio==4.6.2.post1
     # via asyncer
+asttokens==2.4.1
+    # via sorcery
 asyncer==0.0.8
     # via few-shots
 certifi==2024.8.30
@@ -18,6 +20,8 @@ charset-normalizer==3.4.0
     # via requests
 exceptiongroup==1.2.2
     # via anyio
+executing==2.1.0
+    # via sorcery
 filelock==3.16.1
     # via huggingface-hub
     # via torch
@@ -36,6 +40,8 @@ jinja2==3.1.4
     # via torch
 joblib==1.4.2
     # via scikit-learn
+littleutils==0.2.4
+    # via sorcery
 markupsafe==3.0.2
     # via jinja2
 mpmath==1.3.0
@@ -69,8 +75,12 @@ scipy==1.14.1
     # via sentence-transformers
 sentence-transformers==3.2.1
     # via few-shots
+six==1.16.0
+    # via asttokens
 sniffio==1.3.1
     # via anyio
+sorcery==0.2.2
+    # via few-shots
 sympy==1.13.3
     # via torch
 threadpoolctl==3.5.0
@@ -94,3 +104,5 @@ ujson==5.10.0
     # via few-shots
 urllib3==2.2.3
     # via requests
+wrapt==1.16.0
+    # via sorcery

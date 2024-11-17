@@ -1,3 +1,4 @@
+from sorcery import dict_of
 from weaviate.classes.data import DataObject
 from weaviate.classes.query import Filter
 from weaviate.collections import Collection, CollectionAsync
@@ -10,6 +11,7 @@ from few_shots.types import (
     Shot,
     Vector,
 )
+from few_shots.utils.datetime import utcnow
 
 from .base import Store
 
@@ -21,15 +23,17 @@ class WeaviateBase(Store):
         vectors: list[Vector],
         namespace: str,
     ) -> list[DataObject]:
+        updated_at = utcnow()
         return [
             DataObject(
                 uuid=shot.id,
                 vector=vector,
-                properties={
-                    "namespace": namespace,
-                    "inputs": dump_io_value(shot.inputs),
-                    "outputs": dump_io_value(shot.outputs),
-                },
+                properties=dict_of(
+                    namespace,
+                    updated_at,
+                    inputs=dump_io_value(shot.inputs),
+                    outputs=dump_io_value(shot.outputs),
+                ),
             )
             for shot, vector in zip(shots, vectors)
         ]

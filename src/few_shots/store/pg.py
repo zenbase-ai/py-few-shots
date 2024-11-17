@@ -155,13 +155,18 @@ class SQLHelper:
         self.schema = schema
         self.distance = distance
 
+    @staticmethod
+    def utcnow():
+        return "timezone('utc', now())"
+
     def table_create(self, vector_dimensions: int):
         return f"""\
         CREATE TABLE IF NOT EXISTS {self.schema}.{self.tablename} (
             id UUID PRIMARY KEY,
             namespace VARCHAR(256) NOT NULL,
             payload JSONB NOT NULL,
-            vector VECTOR({vector_dimensions}) NOT NULL
+            vector VECTOR({vector_dimensions}) NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT {self.utcnow()}
         );
         """
 
@@ -201,12 +206,13 @@ class SQLHelper:
 
     def upsert(self):
         return f"""\
-        INSERT INTO {self.schema}.{self.tablename} (id, namespace, payload, vector)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO {self.schema}.{self.tablename} (id, namespace, payload, vector, updated_at)
+        VALUES (%s, %s, %s, %s, {self.utcnow()})
         ON CONFLICT (id) DO UPDATE SET
             namespace = EXCLUDED.namespace,
             payload = EXCLUDED.payload,
-            vector = EXCLUDED.vector;
+            vector = EXCLUDED.vector,
+            updated_at = {self.utcnow()};
         """
 
     def shots_to_upsert_tuples(
@@ -214,7 +220,7 @@ class SQLHelper:
         shots: list[Shot],
         vectors: list[Vector],
         namespace: str,
-    ) -> list[tuple[str, str, dict, Vector]]:
+    ) -> list[tuple[str, str, Jsonb, Vector]]:
         return [
             (
                 shot.id,

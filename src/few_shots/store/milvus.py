@@ -32,15 +32,11 @@ class MilvusStore(Store):
 
     def collection_config(self, size: int, metric_type: MetricType = "COSINE"):
         fields = [
-            FieldSchema(
-                name="id",
-                dtype=DataType.VARCHAR,
-                is_primary=True,
-                max_length=128,
-            ),
-            FieldSchema(name="namespace", dtype=DataType.VARCHAR, max_length=512),
-            FieldSchema(name="vectors", dtype=DataType.FLOAT_VECTOR, dim=size),
-            FieldSchema(name="payload", dtype=DataType.JSON),
+            FieldSchema("id", DataType.VARCHAR, max_length=64, is_primary=True),
+            FieldSchema("namespace", DataType.VARCHAR, max_length=512),
+            FieldSchema("vectors", DataType.FLOAT_VECTOR, dim=size),
+            FieldSchema("payload", DataType.JSON),
+            FieldSchema("updated_at", DataType.FLOAT),
         ]
 
         return dict(

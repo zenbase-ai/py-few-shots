@@ -1,5 +1,6 @@
 from chromadb import Collection
 from chromadb.api.async_client import AsyncCollection
+from sorcery import dict_of
 
 from few_shots.types import (
     dump_io_value,
@@ -8,11 +9,27 @@ from few_shots.types import (
     Shot,
     Vector,
 )
+from few_shots.utils.datetime import utcnow
 
 from .base import Store
 
 
 class ChromaBase(Store):
+    @staticmethod
+    def _upsert_kwargs(
+        shots: list[Shot], vectors: list[Vector], namespace: str
+    ) -> dict:
+        updated_at = utcnow()
+        return dict(
+            ids=[s.id for s in shots],
+            embeddings=vectors,
+            documents=[s.key for s in shots],
+            metadatas=[
+                dict_of(namespace, updated_at, outputs=dump_io_value(s.outputs))
+                for s in shots
+            ],
+        )
+
     @staticmethod
     def _query_to_shots_list(results: dict) -> list[ScoredShot]:
         return [
@@ -36,21 +53,13 @@ class ChromaStore(ChromaBase):
         self.collection = collection
 
     def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
-        self.collection.upsert(
-            ids=[shot.id for shot in shots],
-            documents=[shot.key for shot in shots],
-            embeddings=vectors,
-            metadatas=[
-                {"namespace": namespace, "outputs": dump_io_value(s.outputs)}
-                for s in shots
-            ],
-        )
+        self.collection.upsert(**self._upsert_kwargs(shots, vectors, namespace))
 
-    def remove(self, ids: list[str], namespace: str):
-        self.collection.delete(ids=ids, where={"namespace": namespace})
+    def remove(self, ids: list[str], _namespace: str):
+        self.collection.delete(ids=ids)
 
     def clear(self, namespace: str):
-        self.collection.delete(where={"namespace": namespace})
+        self.collection.delete(where=dict_of(namespace))
 
     def list(
         self,
@@ -58,12 +67,13 @@ class ChromaStore(ChromaBase):
         namespace: str,
         limit: int,
     ) -> list[ScoredShot]:
-        results = self.collection.query(
-            query_embeddings=[vector],
-            n_results=limit,
-            where={"namespace": namespace},
+        return self._query_to_shots_list(
+            self.collection.query(
+                query_embeddings=[vector],
+                where=dict_of(namespace),
+                n_results=limit,
+            )
         )
-        return self._query_to_shots_list(results)
 
 
 class AsyncChromaStore(ChromaBase):
@@ -73,21 +83,13 @@ class AsyncChromaStore(ChromaBase):
         self.collection = collection
 
     async def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
-        await self.collection.add(
-            ids=[shot.id for shot in shots],
-            embeddings=vectors,
-            documents=[shot.key for shot in shots],
-            metadatas=[
-                {"namespace": namespace, "outputs": dump_io_value(s.outputs)}
-                for s in shots
-            ],
-        )
+        await self.collection.upsert(**self._upsert_kwargs(shots, vectors, namespace))
 
-    async def remove(self, ids: list[str], namespace: str):
-        await self.collection.delete(ids=ids, where={"namespace": namespace})
+    async def remove(self, ids: list[str], _namespace: str):
+        await self.collection.delete(ids=ids)
 
     async def clear(self, namespace: str):
-        await self.collection.delete(where={"namespace": namespace})
+        await self.collection.delete(where=dict_of(namespace))
 
     async def list(
         self,
@@ -95,9 +97,10 @@ class AsyncChromaStore(ChromaBase):
         namespace: str,
         limit: int,
     ) -> list[ScoredShot]:
-        results = await self.collection.query(
-            query_embeddings=[vector],
-            n_results=limit,
-            where={"namespace": namespace},
+        return self._query_to_shots_list(
+            await self.collection.query(
+                query_embeddings=[vector],
+                where=dict_of(namespace),
+                n_results=limit,
+            )
         )
-        return self._query_to_shots_list(results)
