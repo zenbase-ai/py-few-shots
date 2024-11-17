@@ -72,13 +72,13 @@ class WeaviateBase(Store):
     @staticmethod
     def _response_to_shots_list(response: QueryReturnType) -> list[ScoredShot]:
         return [
-            (
+            ScoredShot(
+                o.metadata.distance,
                 Shot(
                     parse_io_value(o.properties["inputs"]),
                     parse_io_value(o.properties["outputs"]),
                     str(o.uuid),
                 ),
-                o.metadata.distance,
             )
             for o in response.objects
         ]

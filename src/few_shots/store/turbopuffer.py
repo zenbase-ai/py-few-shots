@@ -2,7 +2,7 @@ from typing import Literal, TypeVar
 
 import turbopuffer as tpuf
 
-from few_shots.types import Shot, Vector
+from few_shots.types import Shot, Vector, ScoredShot
 from few_shots.utils.datetime import utcnow
 
 from .base import Store
@@ -44,13 +44,13 @@ class TurboPufferStore(Store):
             include_attributes=["inputs", "outputs"],
         )
         return [
-            (
+            ScoredShot(
+                row.dist,
                 Shot(
                     id=row.id,
                     input=row.attributes["inputs"],
                     output=row.attributes["outputs"],
                 ),
-                row.dist,
             )
             for row in vector_results
         ]

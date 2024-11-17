@@ -30,7 +30,7 @@ class MemoryStore(Store):
 
     def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
         scored_shots = [
-            (shot, 1 - cosine_similarity(vector, emb))
+            ScoredShot(cosine_similarity(vector, emb), shot)
             for (shot, emb) in self._storage[namespace].values()
         ]
         return sorted(scored_shots, key=itemgetter(1), reverse=True)[:limit]

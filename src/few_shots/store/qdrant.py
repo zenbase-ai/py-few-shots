@@ -91,13 +91,13 @@ class QdrantBase(Store):
     @staticmethod
     def _search_to_shots_list(results: List[ScoredPoint]) -> List[ScoredShot]:
         return [
-            (
+            ScoredShot(
+                result.score,
                 Shot(
                     id=result.id,
                     inputs=parse_io_value(result.payload["inputs"]),
                     outputs=parse_io_value(result.payload["outputs"]),
                 ),
-                result.score,
             )
             for result in results
         ]

@@ -45,8 +45,8 @@ shots.add(
 
 # Find similar examples
 best_shots = shots.list("What's the recipe for pizza?", limit=1)
-for shot, similarity in results:
-    print(f"Found match (similarity: {similarity:.2f}):")
+for distance, shot in results:
+    print(f"Found match (distance: {distance:.2f}):")
     print(f"Q: {shot.inputs}")
     print(f"A: {shot.outputs}")
 
@@ -144,7 +144,8 @@ from few_shots.store.weaviate import WeaviateStore, AsyncWeaviateStore
 from few_shots.store.turbopuffer import TurboPufferStore # Untested
 from few_shots.store.milvus import MilvusStore # TODO
 
-# check out the store's .setup method to see how to configure it, and tests/store/test_*.py for examples
+# check out the store's .setup method to see how to configure it
+# this method creates the table, collection, indexes, etc. and is idempotent
 ```
 
 ## 🤝 Contributing

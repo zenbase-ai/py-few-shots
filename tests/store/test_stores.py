@@ -33,7 +33,7 @@ def test_crud(
     query_vector = mock_vectors[0]
     results = store.list(query_vector, namespace, limit=2)
     assert len(results) == 2
-    (s0, _d0), (s1, _d1) = results
+    (_d0, s0), (_d1, s1) = results
     assert [s0, s1] == str_shots
 
     store.remove([s0.id], namespace)
@@ -57,14 +57,13 @@ def test_structured_io(
     store.add(struct_shots, mock_vectors, namespace)
 
     query_vector = mock_vectors[0]
-    (s0, _d0), (s1, _d1) = store.list(
+    (_d0, s0), (_d1, s1) = store.list(
         query_vector,
         namespace,
         limit=2,
     )
 
-    assert s0 == struct_shots[0]
-    assert s1 == struct_shots[1]
+    assert [s0, s1] == struct_shots
 
 
 @pytest.mark.asyncio
@@ -82,7 +81,7 @@ async def test_async_crud(
     query_vector = mock_vectors[0]
     results = await store.list(query_vector, namespace, limit=2)
     assert len(results) == 2
-    (s0, _d0), (s1, _d1) = results
+    (_d0, s0), (_d1, s1) = results
     assert [s0, s1] == str_shots
 
     await store.remove([str_shots[0].id], namespace)
@@ -106,7 +105,10 @@ async def test_async_structured_io(
     await store.add(struct_shots, mock_vectors, namespace)
 
     query_vector = mock_vectors[0]
-    (shot_0, _d0), (shot_1, _d1) = await store.list(query_vector, namespace, limit=2)
+    (_d0, s0), (_d1, s1) = await store.list(
+        query_vector,
+        namespace,
+        limit=2,
+    )
 
-    assert shot_0 == struct_shots[0]
-    assert shot_1 == struct_shots[1]
+    assert [s0, s1] == struct_shots

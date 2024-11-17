@@ -39,11 +39,11 @@ async def test_functional_flow(client: AsyncFewShots):
     assert id == Shot(inputs, outputs).id
 
     results = await client.list(inputs, limit=1)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     results = await client.list(inputs, limit=5)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     await client.remove(inputs, outputs)
@@ -93,11 +93,11 @@ async def test_string_flow(client: AsyncFewShots):
     assert id == Shot(inputs, outputs).id
 
     results = await client.list(inputs, limit=1)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     results = await client.list(inputs, limit=5)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     await client.remove(inputs, outputs)

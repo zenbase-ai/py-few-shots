@@ -18,7 +18,7 @@ def shots_to_messages(shots: list[ScoredShot] | list[Shot]) -> list[dict]:
 
     sample = shots[0]
     if isinstance(sample, ScoredShot):
-        shots = [shot for shot, _ in shots]
+        shots = [s.shot for s in shots]
 
     return list(
         chain.from_iterable(

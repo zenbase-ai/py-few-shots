@@ -49,4 +49,4 @@ class Shot:
         return dump_io_value(self.inputs)
 
 
-ScoredShot = NamedTuple("ScoredShot", [("shot", Shot), ("score", float)])
+ScoredShot = NamedTuple("ScoredShot", [("score", float), ("shot", Shot)])

@@ -98,6 +98,8 @@ class MilvusStore(Store):
             metadata = datum.get("entity", {}).get("payload")
             inputs = parse_io_value(metadata["inputs"])
             outputs = parse_io_value(metadata["outputs"])
-            results.append((Shot(inputs, outputs, datum["id"]), datum["distance"]))
+            results.append(
+                ScoredShot(datum["distance"], Shot(inputs, outputs, datum["id"]))
+            )
 
         return results

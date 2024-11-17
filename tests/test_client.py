@@ -23,11 +23,11 @@ def test_functional_flow(client: FewShots):
     assert id == Shot(inputs, outputs).id
 
     results = client.list(inputs, limit=1)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     results = client.list(inputs, limit=5)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     client.remove(inputs, outputs)
@@ -75,11 +75,11 @@ def test_string_flow(client: FewShots):
     assert id == Shot(inputs, outputs).id
 
     results = client.list(inputs, limit=1)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     results = client.list(inputs, limit=5)
-    results = [shot for shot, _ in results]
+    results = [r.shot for r in results]
     assert results == [Shot(inputs, outputs)]
 
     client.remove(inputs, outputs)

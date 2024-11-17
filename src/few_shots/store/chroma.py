@@ -33,14 +33,14 @@ class ChromaBase(Store):
     @staticmethod
     def _query_to_shots_list(results: dict) -> list[ScoredShot]:
         return [
-            (
-                Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id),
+            ScoredShot(
                 distance,
+                Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id),
             )
-            for (id, inputs, distance, metadata) in zip(
+            for (distance, id, inputs, metadata) in zip(
+                results["distances"][0],
                 results["ids"][0],
                 results["documents"][0],
-                results["distances"][0],
                 results["metadatas"][0],
             )
         ]

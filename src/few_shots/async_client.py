@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from typing import overload
 
 from few_shots.types import (
-    Shot,
-    dump_io_value,
     Datum,
+    dump_io_value,
     IO,
-    ScoredShot,
     is_io_value,
+    ScoredShot,
+    Shot,
 )
 
 from .embed.base import AsyncEmbed

@@ -247,9 +247,9 @@ class SQLHelper:
         tuples: list[tuple[UUID, dict, float]],
     ) -> list[ScoredShot]:
         return [
-            (
-                Shot(payload["inputs"], payload["outputs"], str(id)),
+            ScoredShot(
                 distance,
+                Shot(payload["inputs"], payload["outputs"], str(id)),
             )
             for (id, payload, distance) in tuples
         ]
