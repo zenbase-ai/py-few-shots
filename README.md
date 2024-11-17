@@ -103,17 +103,32 @@ await shots.add(
 best_shots = await shots.list("How's the weather today?", limit=1)
 ```
 
-### Using LiteLLM for [Embeddings](https://docs.litellm.ai/docs/embedding/supported_embedding)
+### Using OpenAI / LiteLLM for [Embeddings](https://docs.litellm.ai/docs/embedding/supported_embedding)
+
+The `OpenAIEmbed` and `AsyncOpenAIEmbed` classes are compatible with all OpenAI-compatible SDKs.
 
 ```python
-from functools import partial
-from litellm import aembedding
 from few_shots import AsyncFewShots
-from few_shots.embed.litellm import AsyncLiteLLMEmbed
+from few_shots.embed.openai import OpenAIEmbed, AsyncOpenAIEmbed # Compatible with all OpenAI
+
+from openai import OpenAI
+
+shots = FewShots(
+    embed=OpenAIEmbed(
+        OpenAI().embeddings.create,
+        model="...",
+        **kwargs,
+    ),
+    store=MemoryStore()
+)
+
+from litellm import aembedding
 
 shots = AsyncFewShots(
-    embed=AsyncLiteLLMEmbed(
-        partial(aembedding, model="...", **kwargs),
+    embed=AsyncOpenAIEmbed(
+        aembedding,
+        model="...",
+        **kwargs,
     ),
     store=MemoryStore()
 )
@@ -126,7 +141,8 @@ from few_shots.store.pg import PGStore, AsyncPGStore
 from few_shots.store.chroma import ChromaStore, AsyncChromaStore
 from few_shots.store.qdrant import QdrantStore, AsyncQdrantStore
 from few_shots.store.weaviate import WeaviateStore, AsyncWeaviateStore
-from few_shots.store.milvus import MilvusStore
+from few_shots.store.turbopuffer import TurboPufferStore # Untested
+from few_shots.store.milvus import MilvusStore # TODO
 
 # check out the store's .setup method to see how to configure it, and tests/store/test_*.py for examples
 ```
