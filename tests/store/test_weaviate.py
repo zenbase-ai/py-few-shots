@@ -7,7 +7,7 @@ from few_shots.types import Shot, Vector
 
 @pytest.fixture
 def client():
-    with weaviate.connect_to_embedded() as c:
+    with weaviate.connect_to_local() as c:
         yield c
 
 
@@ -69,7 +69,7 @@ def test_structured_io(
 
 @pytest.fixture
 async def async_client():
-    async with weaviate.use_async_with_embedded() as c:
+    async with weaviate.use_async_with_local() as c:
         yield c
 
 
