@@ -34,7 +34,7 @@ def test_functional_flow(client: FewShots):
     assert [] == client.list(inputs, limit=1)
 
     client.add(inputs, outputs)
-    client.clear()
+    client.remove(inputs, outputs)
     assert [] == client.list(inputs)
 
 

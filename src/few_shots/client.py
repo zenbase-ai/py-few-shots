@@ -16,6 +16,14 @@ from .store.base import Store
 
 @dataclass
 class FewShots:
+    """
+    Client for storing and retrieving few-shot examples.
+
+    Combines an embedding model with a vector store to enable semantic search over examples.
+
+    `add` is used to store examples, `remove` to delete them, `clear` to remove all examples in a namespace, and `list` to find similar examples to an input.
+    """
+
     embed: Embed
     store: Store
 
@@ -27,7 +35,15 @@ class FewShots:
         *,
         id: str = "",
         namespace: str = "default",
-    ) -> str: ...
+    ) -> str:
+        """Add an example to the store.
+
+        Args:
+            inputs: Input to store
+            outputs: Output to store
+            id: ID for the example
+            namespace: Namespace to store the example in
+        """
 
     @overload
     def add(
@@ -35,7 +51,13 @@ class FewShots:
         data: list[Datum],
         *,
         namespace: str = "default",
-    ) -> list[str]: ...
+    ) -> list[str]:
+        """Add multiple examples to the store.
+
+        Args:
+            data: List of (input, output) or (input, output, id) tuples
+            namespace: Namespace to store the examples in
+        """
 
     def add(
         self,
@@ -62,7 +84,13 @@ class FewShots:
         ids: list[str],
         *,
         namespace: str = "default",
-    ): ...
+    ):
+        """Remove one or more examples from the store.
+
+        Args:
+            ids: IDs of examples to remove
+            namespace: Namespace to remove examples from
+        """
 
     @overload
     def remove(
@@ -72,7 +100,15 @@ class FewShots:
         *,
         id: str = "",
         namespace: str = "default",
-    ): ...
+    ):
+        """Remove one example from the store.
+
+        Args:
+            inputs: Input of example to remove
+            outputs: Output of example to remove
+            id: ID of example to remove
+            namespace: Namespace to remove the example from
+        """
 
     @overload
     def remove(
@@ -80,7 +116,13 @@ class FewShots:
         data: list[Datum],
         *,
         namespace: str = "default",
-    ): ...
+    ):
+        """Remove multiple examples from the store.
+
+        Args:
+            data: List of (input, output) or (input, output, id) tuples
+            namespace: Namespace to remove the examples from
+        """
 
     def remove(
         self,
@@ -98,6 +140,11 @@ class FewShots:
         self.store.remove(ids, namespace)
 
     def clear(self, namespace: str = "default"):
+        """Remove all examples from a namespace.
+
+        Args:
+            namespace: Namespace to clear
+        """
         self.store.clear(namespace)
 
     def list(
@@ -107,5 +154,15 @@ class FewShots:
         namespace: str = "default",
         limit: int = 5,
     ) -> list[ScoredShot]:
+        """Find similar examples to an input.
+
+        Args:
+            inputs: Input to find similar examples for
+            namespace: Namespace to search in
+            limit: Maximum number of examples to return
+
+        Returns:
+            List of (example, score) tuples, sorted by distance ascending
+        """
         [vector] = self.embed([dump_io_value(inputs)])
         return self.store.list(vector, namespace, limit)
