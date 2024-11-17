@@ -1,8 +1,10 @@
 from sorcery import dict_of
+from weaviate import WeaviateAsyncClient, WeaviateClient
+from weaviate.classes.config import Property, DataType, VectorDistances, Configure
 from weaviate.classes.data import DataObject
 from weaviate.classes.query import Filter
-from weaviate.collections import Collection, CollectionAsync
 from weaviate.collections.classes.internal import QueryReturnType
+from weaviate.exceptions import WeaviateBaseError
 
 from few_shots.types import (
     dump_io_value,
@@ -17,6 +19,35 @@ from .base import Store
 
 
 class WeaviateBase(Store):
+    collection_name: str
+    distance_metric: VectorDistances
+
+    def __init__(
+        self,
+        collection_name: str,
+        distance_metric: VectorDistances = VectorDistances.COSINE,
+    ):
+        self.collection_name = collection_name
+        self.distance_metric = distance_metric
+
+    def _create_collection_kwargs(self) -> dict:
+        return dict(
+            name=self.collection_name,
+            properties=[
+                Property(
+                    name="namespace",
+                    data_type=DataType.TEXT,
+                    index_filterable=True,
+                ),
+                Property(name="inputs", data_type=DataType.TEXT),
+                Property(name="outputs", data_type=DataType.TEXT),
+                Property(name="updated_at", data_type=DataType.NUMBER),
+            ],
+            vector_index_config=Configure.VectorIndex.hnsw(
+                distance_metric=self.distance_metric
+            ),
+        )
+
     @staticmethod
     def _shots_to_data_objects(
         shots: list[Shot],
@@ -52,19 +83,29 @@ class WeaviateBase(Store):
             for o in response.objects
         ]
 
-    @staticmethod
-    def _remove_filter(namespace: str, ids: list[str] | None = None) -> Filter:
-        filters = Filter.by_property("namespace").equal(namespace)
-        if ids:
-            filters &= Filter.by_id().contains_any(ids)
-        return filters
-
 
 class WeaviateStore(WeaviateBase):
-    collection: Collection
+    client: WeaviateClient
 
-    def __init__(self, collection: Collection):
-        self.collection = collection
+    def __init__(
+        self,
+        client: WeaviateClient,
+        collection_name: str,
+        distance_metric: VectorDistances = VectorDistances.COSINE,
+    ):
+        super().__init__(collection_name, distance_metric)
+        self.client = client
+
+    def setup(self):
+        try:
+            self.collection = self.client.collections.create(
+                **self._create_collection_kwargs()
+            )
+        except WeaviateBaseError:
+            self.collection = self.client.collections.get(self.collection_name)
+
+    def teardown(self):
+        self.client.collections.delete(self.collection_name)
 
     def add(
         self,
@@ -76,11 +117,13 @@ class WeaviateStore(WeaviateBase):
             self._shots_to_data_objects(shots, vectors, namespace)
         )
 
-    def remove(self, ids: list[str], namespace: str):
-        self.collection.data.delete_many(self._remove_filter(namespace, ids))
+    def remove(self, ids: list[str], _namespace: str):
+        self.collection.data.delete_many(Filter.by_id().contains_any(ids))
 
     def clear(self, namespace: str):
-        self.collection.data.delete_many(self._remove_filter(namespace))
+        self.collection.data.delete_many(
+            Filter.by_property("namespace").equal(namespace)
+        )
 
     def list(
         self,
@@ -90,7 +133,7 @@ class WeaviateStore(WeaviateBase):
     ) -> list[ScoredShot]:
         response = self.collection.query.near_vector(
             vector,
-            filters=self._remove_filter(namespace),
+            filters=Filter.by_property("namespace").equal(namespace),
             limit=limit,
         )
 
@@ -98,10 +141,27 @@ class WeaviateStore(WeaviateBase):
 
 
 class AsyncWeaviateStore(WeaviateBase):
-    collection: CollectionAsync
+    client: WeaviateAsyncClient
 
-    def __init__(self, collection: CollectionAsync):
-        self.collection = collection
+    def __init__(
+        self,
+        client: WeaviateAsyncClient,
+        collection_name: str,
+        distance_metric: VectorDistances = VectorDistances.COSINE,
+    ):
+        super().__init__(collection_name, distance_metric)
+        self.client = client
+
+    async def setup(self):
+        try:
+            self.collection = await self.client.collections.create(
+                **self._create_collection_kwargs()
+            )
+        except WeaviateBaseError:
+            self.collection = await self.client.collections.get(self.collection_name)
+
+    async def teardown(self):
+        await self.client.collections.delete(self.collection_name)
 
     async def add(
         self,
@@ -113,11 +173,13 @@ class AsyncWeaviateStore(WeaviateBase):
             self._shots_to_data_objects(shots, vectors, namespace)
         )
 
-    async def remove(self, ids: list[str], namespace: str):
-        await self.collection.data.delete_many(self._remove_filter(namespace, ids))
+    async def remove(self, ids: list[str], _namespace: str):
+        await self.collection.data.delete_many(Filter.by_id().contains_any(ids))
 
     async def clear(self, namespace: str):
-        await self.collection.data.delete_many(self._remove_filter(namespace))
+        await self.collection.data.delete_many(
+            Filter.by_property("namespace").equal(namespace)
+        )
 
     async def list(
         self,
@@ -127,7 +189,7 @@ class AsyncWeaviateStore(WeaviateBase):
     ) -> list[ScoredShot]:
         response = await self.collection.query.near_vector(
             vector,
-            filters=self._remove_filter(namespace),
+            filters=Filter.by_property("namespace").equal(namespace),
             limit=limit,
         )
 

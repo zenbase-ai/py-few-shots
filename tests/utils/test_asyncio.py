@@ -30,7 +30,7 @@ class AsyncClass(SyncClass):
     pass
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_asyncify_class():
     obj = AsyncClass()
 

@@ -6,17 +6,9 @@ authors = [
     { name = "cyrus", email = "cyrus@zenbase.ai" },
     { name = "behradkhorram", email = "behrad@zenbase.ai" }
 ]
-dependencies = [
-    "ujson>=5.10.0",
-    "asyncer>=0.0.8",
-    "sorcery>=0.2.2",
-]
+dependencies = ["ujson>=5.10.0", "asyncer>=0.0.8", "sorcery>=0.2.2"]
 readme = "README.md"
 requires-python = ">= 3.8"
-
-[project.optional-dependencies]
-transformers = ["transformers>=4.46.2", "sentence-transformers>=3.2.1"]
-memory = ["numpy<2"]
 
 [build-system]
 requires = ["hatchling"]
@@ -27,7 +19,6 @@ managed = true
 dev-dependencies = [
     "beartype>=0.19.0",
     "chromadb>=0.5.18",
-    "faiss-cpu>=1.9.0",
     "hypothesis>=6.119.1",
     "ipdb>=0.13.13",
     "ipython>=8.29.0",
@@ -37,13 +28,16 @@ dev-dependencies = [
     "psycopg>=3.2.3",
     "pymilvus>=2.4.9",
     "pymongo>=4.10.1",
-    "pytest-anyio>=0.0.0",
     "pytest>=8.3.3",
     "pyvespa>=0.50.0",
     "qdrant-client>=1.12.1",
     "sqlalchemy>=2.0.36",
     "syrupy>=4.7.2",
     "weaviate-client>=4.9.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-lazy-fixtures>=1.1.1",
+    "sentence-transformers>=3.3.0",
+    "turbopuffer>=0.1.22",
 ]
 
 [tool.hatch.metadata]
@@ -51,3 +45,7 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/few_shots"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

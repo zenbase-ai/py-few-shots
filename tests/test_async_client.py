@@ -30,7 +30,7 @@ def client():
     )
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_functional_flow(client: AsyncFewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
@@ -54,7 +54,7 @@ async def test_functional_flow(client: AsyncFewShots):
     assert [] == await client.list(inputs)
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_dispatch(client: AsyncFewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
@@ -84,7 +84,7 @@ async def test_dispatch(client: AsyncFewShots):
     assert [] == await client.list(inputs)
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_string_flow(client: AsyncFewShots):
     inputs = "User question..."
     outputs = "AI answer..."

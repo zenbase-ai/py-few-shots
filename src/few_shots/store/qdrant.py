@@ -60,10 +60,12 @@ class QdrantBase(Store):
 
     @staticmethod
     def _remove_selector(namespace: str, ids: list[str] | None = None) -> Filter:
-        must = [FieldCondition(key="namespace", match=MatchValue(value=namespace))]
-        if ids:
-            must.append(HasIdCondition(has_id=ids))
-        return Filter(must=must)
+        cond = (
+            FieldCondition(key="namespace", match=MatchValue(value=namespace))
+            if not ids
+            else HasIdCondition(has_id=ids)
+        )
+        return Filter(must=[cond])
 
     @staticmethod
     def _shots_to_point_structs(

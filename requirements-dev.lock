@@ -21,7 +21,6 @@ anyio==4.6.2.post1
     # via asyncer
     # via httpx
     # via openai
-    # via pytest-anyio
     # via starlette
     # via watchfiles
 asgiref==3.8.1
@@ -96,7 +95,6 @@ exceptiongroup==1.2.2
 executing==2.1.0
     # via sorcery
     # via stack-data
-faiss-cpu==1.9.0
 fastapi==0.115.4
     # via chromadb
 fastcore==1.7.19
@@ -176,6 +174,8 @@ iniconfig==2.0.0
 ipdb==0.13.13
 ipython==8.29.0
     # via ipdb
+iso8601==2.1.0
+    # via turbopuffer
 jedi==0.19.1
     # via ipython
 jinja2==3.1.4
@@ -225,8 +225,6 @@ networkx==3.4.2
 numpy==1.26.4
     # via chroma-hnswlib
     # via chromadb
-    # via faiss-cpu
-    # via few-shots
     # via onnxruntime
     # via pandas
     # via pgvector
@@ -234,6 +232,7 @@ numpy==1.26.4
     # via scikit-learn
     # via scipy
     # via transformers
+    # via turbopuffer
 oauthlib==3.2.2
     # via kubernetes
     # via requests-oauthlib
@@ -277,7 +276,6 @@ overrides==7.7.0
     # via chromadb
 packaging==24.2
     # via build
-    # via faiss-cpu
     # via fastcore
     # via huggingface-hub
     # via marshmallow
@@ -287,6 +285,7 @@ packaging==24.2
     # via transformers
 pandas==2.2.3
     # via pymilvus
+    # via turbopuffer
 parso==0.8.4
     # via jedi
 pexpect==4.9.0
@@ -352,9 +351,11 @@ pypika==0.48.9
 pyproject-hooks==1.2.0
     # via build
 pytest==8.3.3
-    # via pytest-anyio
+    # via pytest-asyncio
+    # via pytest-lazy-fixtures
     # via syrupy
-pytest-anyio==0.0.0
+pytest-asyncio==0.24.0
+pytest-lazy-fixtures==1.1.1
 python-dateutil==2.9.0.post0
     # via kubernetes
     # via pandas
@@ -392,6 +393,7 @@ requests==2.32.3
     # via requests-toolbelt
     # via tiktoken
     # via transformers
+    # via turbopuffer
     # via weaviate-client
 requests-oauthlib==2.0.0
     # via kubernetes
@@ -412,8 +414,7 @@ scikit-learn==1.5.2
 scipy==1.14.1
     # via scikit-learn
     # via sentence-transformers
-sentence-transformers==3.2.1
-    # via few-shots
+sentence-transformers==3.3.0
 setuptools==75.3.0
     # via grpcio-tools
     # via pymilvus
@@ -470,8 +471,8 @@ traitlets==5.14.3
     # via ipython
     # via matplotlib-inline
 transformers==4.46.2
-    # via few-shots
     # via sentence-transformers
+turbopuffer==0.1.22
 typer==0.13.0
     # via chromadb
 typing-extensions==4.12.2

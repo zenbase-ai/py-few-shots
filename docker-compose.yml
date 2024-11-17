@@ -8,6 +8,13 @@ services:
     ports:
       - "5432:5432"
 
+  chroma:
+    image: chromadb/chroma:latest
+    environment:
+      - ALLOW_RESET=true
+    ports:
+      - 8000:8000
+
   weaviate:
     command:
       - --host

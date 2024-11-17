@@ -1,11 +1,18 @@
+import pytest
+from hypothesis import given
+from hypothesis.strategies import dictionaries, text
+
 from few_shots.types import Shot, dump_io_value, id_io_value, is_io_value
 
 
-def test_is_io_value():
-    assert is_io_value("test") is True
-    assert is_io_value({"key": "value"}) is True
-    assert is_io_value(123) is False
-    assert is_io_value(["test"]) is False
+@given(value=text())
+def test_str_is_io_value(value: str):
+    assert is_io_value(value)
+
+
+@given(value=dictionaries(text(), text()))
+def test_dict_is_io_value(value: dict[str, str]):
+    assert is_io_value(value)
 
 
 def test_data_key():
@@ -18,20 +25,19 @@ def test_data_hash(snapshot):
     assert id_io_value(data) == snapshot
 
 
-def test_init_with_id():
-    shot = Shot({"input": "test"}, {"output": "result"}, "test_id")
-    assert shot.inputs == {"input": "test"}
-    assert shot.outputs == {"output": "result"}
+@given(inputs=dictionaries(text(), text()))
+def test_shot_custom_id(inputs: dict[str, str]):
+    outputs = {"output": "result"}
+    shot = Shot(inputs, outputs, "test_id")
+    assert shot.inputs == inputs
+    assert shot.outputs == outputs
+    assert shot.key == dump_io_value(inputs)
     assert shot.id == "test_id"
 
 
-def test_init_without_id():
-    inputs = {"input": "test"}
-    shot = Shot(inputs, {"output": "result"})
-    assert shot.id == id_io_value(inputs)
-
-
-def test_key_property():
-    inputs = {"input": "test"}
-    shot = Shot(inputs, {"output": "result"})
+@given(inputs=dictionaries(text(), text()))
+def test_shot_auto_id(inputs: dict[str, str]):
+    outputs = {"output": "result"}
+    shot = Shot(inputs, outputs)
     assert shot.key == dump_io_value(inputs)
+    assert shot.id == id_io_value(inputs)
