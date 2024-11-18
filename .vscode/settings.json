@@ -9,7 +9,9 @@
     "**/.ruby-lsp": true,
     "**/__pycache__": true,
     ".venv/": true,
-    ".pytest_cache/": true
+    ".pytest_cache/": true,
+    ".tox/": true,
+    ".hypothesis/": true
   },
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
