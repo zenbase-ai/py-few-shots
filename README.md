@@ -112,8 +112,8 @@ from few_shots.store.pg import PGStore, AsyncPGStore
 from few_shots.store.chroma import ChromaStore, AsyncChromaStore
 from few_shots.store.qdrant import QdrantStore, AsyncQdrantStore
 from few_shots.store.weaviate import WeaviateStore, AsyncWeaviateStore
-from few_shots.store.turbopuffer import TurboPufferStore # Untested
-from few_shots.store.milvus import MilvusStore # TODO
+from few_shots.store.turbopuffer import TurboPufferStore, AsyncTurboPufferStore # Untested
+from few_shots.store.milvus import MilvusStore, AsyncMilvusStore # Untested
 
 # check out the store's .setup method to see how to configure it
 # this method creates the table, collection, indexes, etc. and is idempotent

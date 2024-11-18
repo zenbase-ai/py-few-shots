@@ -2,11 +2,13 @@ import pytest
 
 from chromadb import HttpClient, AsyncHttpClient
 from psycopg import AsyncConnection, Connection
+from pymilvus import MilvusClient
 from qdrant_client.local.async_qdrant_local import AsyncQdrantLocal
 from qdrant_client.local.qdrant_local import QdrantLocal
 import weaviate
 
 from few_shots.store.chroma import ChromaStore, AsyncChromaStore
+from few_shots.store.milvus import AsyncMilvusStore, MilvusStore
 from few_shots.store.pg import AsyncPGStore, PGStore
 from few_shots.store.qdrant import AsyncQdrantStore, QdrantStore, Distance
 from few_shots.store.weaviate import AsyncWeaviateStore, WeaviateStore
@@ -134,7 +136,17 @@ async def async_weaviate_store(async_weaviate_client):
     await s.teardown()
 
 
-# TODO: Milvus fixtures
-# @pytest.fixture
-# def milvus_store():
-#     return MilvusStore(MilvusClient(), "test")
+@pytest.fixture
+def milvus_store():
+    s = MilvusStore(MilvusClient(), "test")
+    s.setup()
+    yield s
+    s.teardown()
+
+
+@pytest.fixture
+async def async_milvus_store():
+    s = AsyncMilvusStore(MilvusClient(), "test")
+    await s.setup()
+    yield s
+    await s.teardown()

@@ -9,13 +9,11 @@ from few_shots.store.base import Store, AsyncStore
 from few_shots.types import Shot, Vector
 
 
-providers = ["chroma", "pg", "qdrant", "weaviate"]
-sync_providers = [] + providers  # TODO: Add Milvus
-async_providers = [] + providers
+providers = ["chroma", "pg", "qdrant", "weaviate"]  # TODO: Add Milvus & TurboPuffer
 
 
-lazy_sync_stores = [lf(f"{p}_store") for p in sync_providers]
-lazy_async_stores = [lf(f"async_{p}_store") for p in async_providers]
+lazy_sync_stores = [lf(f"{p}_store") for p in providers]
+lazy_async_stores = [lf(f"async_{p}_store") for p in providers]
 
 
 @pytest.mark.parametrize("store", lazy_sync_stores)

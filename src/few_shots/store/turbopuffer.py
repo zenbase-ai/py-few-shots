@@ -3,6 +3,7 @@ from typing import Literal, TypeVar
 import turbopuffer as tpuf
 
 from few_shots.types import Shot, Vector, ScoredShot
+from few_shots.utils.asyncio import asyncify_class
 from few_shots.utils.datetime import utcnow
 
 from .base import Store
@@ -54,3 +55,7 @@ class TurboPufferStore(Store):
             )
             for row in vector_results
         ]
+
+
+@asyncify_class
+class AsyncTurboPufferStore(TurboPufferStore): ...

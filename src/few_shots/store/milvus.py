@@ -13,6 +13,7 @@ from few_shots.types import (
     Shot,
     Vector,
 )
+from few_shots.utils.asyncio import asyncify_class
 
 from .base import Store
 
@@ -30,25 +31,31 @@ class MilvusStore(Store):
         self.client = client
         self.collection_name = collection_name
 
-    def collection_config(self, size: int, metric_type: MetricType = "COSINE"):
+    def setup(self, size: int, metric_type: MetricType = "COSINE"):
+        if self.client.has_collection(self.collection_name):
+            return
+
         fields = [
             FieldSchema("id", DataType.VARCHAR, max_length=128, is_primary=True),
             FieldSchema("namespace", DataType.VARCHAR, max_length=512),
-            FieldSchema("vectors", DataType.FLOAT_VECTOR, dim=size),
+            FieldSchema("vector", DataType.FLOAT_VECTOR, dim=size),
             FieldSchema("payload", DataType.JSON),
             FieldSchema("updated_at", DataType.FLOAT),
         ]
 
-        return dict(
+        self.client.create_collection(
             collection_name=self.collection_name,
             schema=CollectionSchema(fields),
             index=self.client.prepare_index_params(
-                field_name="vectors",
+                field_name="vector",
                 metric_type=metric_type,
                 index_type="AUTOINDEX",
                 index_name="vectors_index",
             ),
         )
+
+    def teardown(self):
+        self.client.drop_collection(self.collection_name)
 
     def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
         self.client.upsert(
@@ -103,3 +110,7 @@ class MilvusStore(Store):
             )
 
         return results
+
+
+@asyncify_class
+class AsyncMilvusStore(MilvusStore): ...
