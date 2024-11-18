@@ -44,6 +44,7 @@ dev-dependencies = [
     "turbopuffer>=0.1.22",
     "tox>=4.23.2",
     "tox-gh-actions>=3.2.0",
+    "fastembed>=0.4.2",
 ]
 
 [tool.hatch.metadata]
