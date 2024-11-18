@@ -3,7 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Ever wished your AI model had a better memory? Meet FewShot - the simple yet powerful library for managing and retrieving few-shot examples with style! 🧠✨
+Ever wished your AI model had a better memory? Meet `few-shots` - the simple yet powerful library for managing and retrieving few-shot examples with style! 🧠✨
 
 ## 🌟 Features
 
