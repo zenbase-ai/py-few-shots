@@ -1,18 +1,16 @@
 import pytest
-from sentence_transformers import SentenceTransformer
 
 from few_shots.client import FewShots
-from few_shots.embed.transformers import TransformersEmbed
 from few_shots.store.memory import MemoryStore
 from few_shots.types import Shot
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def client():
-    return FewShots(
-        embed=TransformersEmbed(model=SentenceTransformer("all-MiniLM-L6-v2")),
-        store=MemoryStore(),
-    )
+    def embed(inputs: list[str]):
+        return [[1] * 384] * len(inputs)
+
+    return FewShots(embed=embed, store=MemoryStore())
 
 
 def test_functional_flow(client: FewShots):

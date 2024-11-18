@@ -1,18 +1,9 @@
 import pytest
-from sentence_transformers import SentenceTransformer
 
 from few_shots.async_client import AsyncFewShots
-from few_shots.embed.transformers import TransformersEmbed
 from few_shots.store.memory import MemoryStore
 from few_shots.types import Shot
 from few_shots.utils.asyncio import asyncify_class
-
-
-@asyncify_class
-class AsyncTransformersEmbed(TransformersEmbed):
-    """
-    Async version of TransformersEmbed for testing only.
-    """
 
 
 @asyncify_class
@@ -24,10 +15,10 @@ class AsyncMemoryStore(MemoryStore):
 
 @pytest.fixture(scope="function")
 def client():
-    return AsyncFewShots(
-        embed=AsyncTransformersEmbed(SentenceTransformer("all-MiniLM-L6-v2")),
-        store=AsyncMemoryStore(),
-    )
+    async def embed(inputs: list[str]):
+        return [[1] * 384] * len(inputs)
+
+    return AsyncFewShots(embed=embed, store=AsyncMemoryStore())
 
 
 @pytest.mark.asyncio
