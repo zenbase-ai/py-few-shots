@@ -23,17 +23,29 @@ Ever wished your AI model had a better memory? Meet `few-shots` - the simple yet
 - **Store**: Manages storage and retrieval of examples
 - **Client**: Ties everything together with a clean, simple interface
 
+## 🔧 Installation
+
+```bash
+pip install few-shots
+rye add few-shots
+poetry add few-shots
+```
+
 ## 🚀 Quick Start
 
 ```python
-from sentence_transformers import SentenceTransformer # Can also use OpenAI, etc.
 from few_shots.client import FewShots
-from few_shots.embed.transformers import TransformersEmbed
-from few_shots.store.memory import MemoryStore
+from few_shots.embed.openai import OopenAIEmbed
+from few_shots.store.memory import MemoryStore # see below for different vectorstores
+from openai import OpenAI
 
 # Create a FewShot client
 shots = FewShots(
-    embed=TransformersEmbed(SentenceTransformer("all-MiniLM-L6-v2")),
+    embed=OpenAIEmbed(
+        OpenAI().embeddings.create,
+        model="...",
+        **kwargs,
+    ),
     store=MemoryStore()
 )
 
@@ -63,13 +75,6 @@ openai.chat.completions.create(
 )
 ```
 
-## 🔧 Installation
-
-```bash
-pip install few-shots
-rye add few-shots
-poetry add few-shots
-```
 
 ## 🎮 Usage Examples
 
@@ -86,21 +91,18 @@ shots.add(
 best_shots = shots.list({"type": "greeting", "language": "English"})
 ```
 
-### Async Support
+### Using persistent Vector Stores
 
 ```python
-from few_shots.async_client import AsyncFewShot
+from few_shots.store.pg import PGStore, AsyncPGStore
+from few_shots.store.chroma import ChromaStore, AsyncChromaStore
+from few_shots.store.qdrant import QdrantStore, AsyncQdrantStore
+from few_shots.store.weaviate import WeaviateStore, AsyncWeaviateStore
+from few_shots.store.turbopuffer import TurboPufferStore # Untested
+from few_shots.store.milvus import MilvusStore # TODO
 
-shots = AsyncFewShots(embed=async_embedder, store=async_store)
-
-# Add examples asynchronously
-await shots.add(
-    inputs="What's the weather like?",
-    outputs="I don't have access to real-time weather data."
-)
-
-# Search asynchronously
-best_shots = await shots.list("How's the weather today?", limit=1)
+# check out the store's .setup method to see how to configure it
+# this method creates the table, collection, indexes, etc. and is idempotent
 ```
 
 ### Using OpenAI / LiteLLM for [Embeddings](https://docs.litellm.ai/docs/embedding/supported_embedding)
@@ -132,20 +134,6 @@ shots = AsyncFewShots(
     ),
     store=MemoryStore()
 )
-```
-
-### Using different Vector Stores
-
-```python
-from few_shots.store.pg import PGStore, AsyncPGStore
-from few_shots.store.chroma import ChromaStore, AsyncChromaStore
-from few_shots.store.qdrant import QdrantStore, AsyncQdrantStore
-from few_shots.store.weaviate import WeaviateStore, AsyncWeaviateStore
-from few_shots.store.turbopuffer import TurboPufferStore # Untested
-from few_shots.store.milvus import MilvusStore # TODO
-
-# check out the store's .setup method to see how to configure it
-# this method creates the table, collection, indexes, etc. and is idempotent
 ```
 
 ## 🤝 Contributing
