@@ -39,7 +39,6 @@ from few_shots.embed.openai import OopenAIEmbed
 from few_shots.store.memory import MemoryStore # see below for different vectorstores
 from openai import OpenAI
 
-# Create a FewShot client
 shots = FewShots(
     embed=OpenAIEmbed(
         OpenAI().embeddings.create,
@@ -49,10 +48,22 @@ shots = FewShots(
     store=MemoryStore()
 )
 
-# Add some examples
 shots.add(
     inputs="How do I make a pizza?",
     outputs="1. Make the dough 2. Add toppings 3. Bake at 450°F"
+)
+
+# Or use structured inputs/outputs
+shots.add(
+    inputs=dict,
+    outputs=dict,
+)
+
+# Use your own foreign key for upserts
+shots.add(
+    inputs=...,
+    outputs=...,
+    id=str,
 )
 
 # Find similar examples
