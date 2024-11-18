@@ -67,7 +67,10 @@ shots.add(
 )
 
 # Find similar examples
-best_shots = shots.list("What's the recipe for pizza?", limit=1)
+best_shots = shots.list(
+    "What's the recipe for pizza?",
+    limit=10, # default = 5
+)
 for distance, shot in results:
     print(f"Found match (distance: {distance:.2f}):")
     print(f"Q: {shot.inputs}")
