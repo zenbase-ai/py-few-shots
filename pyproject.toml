@@ -38,6 +38,8 @@ dev-dependencies = [
     "pytest-lazy-fixtures>=1.1.1",
     "sentence-transformers>=3.3.0",
     "turbopuffer>=0.1.22",
+    "tox>=4.23.2",
+    "tox-gh-actions>=3.2.0",
 ]
 
 [tool.hatch.metadata]
@@ -49,3 +51,6 @@ packages = ["src/few_shots"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.project.optional-dependencies]
+dev = ["tox", "tox-gh-actions"]

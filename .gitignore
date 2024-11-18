@@ -14,3 +14,4 @@ wheels/
 .idea
 
 .DS_Store
+.tox/

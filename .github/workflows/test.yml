@@ -9,14 +9,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Rye
         run: |
@@ -26,12 +29,5 @@ jobs:
       - name: Install dependencies
         run: rye sync
 
-      - name: Start Docker services
-        run: docker compose up -d
-
-      - name: Run tests
-        run: rye test -v
-
-      - name: Stop Docker services
-        run: docker compose down
-        if: always()
+      - name: Test with Tox
+        run: rye run tox -e py$(echo ${{ matrix.python-version }} | tr -d .)

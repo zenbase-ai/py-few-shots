@@ -49,6 +49,7 @@ build==1.2.2.post1
     # via chromadb
 cachetools==5.5.0
     # via google-auth
+    # via tox
 certifi==2024.8.30
     # via httpcore
     # via httpx
@@ -57,6 +58,8 @@ certifi==2024.8.30
     # via requests
 cffi==1.17.1
     # via cryptography
+chardet==5.2.0
+    # via tox
 charset-normalizer==3.4.0
     # via requests
 chroma-hnswlib==0.7.6
@@ -66,6 +69,8 @@ click==8.1.7
     # via litellm
     # via typer
     # via uvicorn
+colorama==0.4.6
+    # via tox
 coloredlogs==15.0.1
     # via onnxruntime
 cryptography==43.0.3
@@ -77,6 +82,8 @@ decorator==5.1.1
 deprecated==1.2.14
     # via opentelemetry-api
     # via opentelemetry-semantic-conventions
+distlib==0.3.9
+    # via virtualenv
 distro==1.9.0
     # via openai
 dnspython==2.7.0
@@ -102,7 +109,9 @@ fastcore==1.7.19
 filelock==3.16.1
     # via huggingface-hub
     # via torch
+    # via tox
     # via transformers
+    # via virtualenv
 flatbuffers==24.3.25
     # via onnxruntime
 frozenlist==1.5.0
@@ -281,7 +290,9 @@ packaging==24.2
     # via marshmallow
     # via onnxruntime
     # via opentelemetry-instrumentation
+    # via pyproject-api
     # via pytest
+    # via tox
     # via transformers
 pandas==2.2.3
     # via pymilvus
@@ -299,8 +310,12 @@ pinecone-plugin-inference==1.1.0
 pinecone-plugin-interface==0.0.7
     # via pinecone
     # via pinecone-plugin-inference
+platformdirs==4.3.6
+    # via tox
+    # via virtualenv
 pluggy==1.5.0
     # via pytest
+    # via tox
 portalocker==2.10.1
     # via qdrant-client
 posthog==3.7.0
@@ -348,6 +363,8 @@ pymilvus==2.4.9
 pymongo==4.10.1
 pypika==0.48.9
     # via chromadb
+pyproject-api==1.8.0
+    # via tox
 pyproject-hooks==1.2.0
     # via build
 pytest==8.3.3
@@ -456,9 +473,14 @@ tokenizers==0.20.3
 tomli==2.0.2
     # via build
     # via ipdb
+    # via pyproject-api
     # via pytest
+    # via tox
 torch==2.2.2
     # via sentence-transformers
+tox==4.23.2
+    # via tox-gh-actions
+tox-gh-actions==3.2.0
 tqdm==4.67.0
     # via chromadb
     # via huggingface-hub
@@ -493,6 +515,7 @@ typing-extensions==4.12.2
     # via rich
     # via sqlalchemy
     # via torch
+    # via tox
     # via typer
     # via uvicorn
 tzdata==2024.2
@@ -512,6 +535,8 @@ uvloop==0.21.0
     # via uvicorn
 validators==0.34.0
     # via weaviate-client
+virtualenv==20.27.1
+    # via tox
 watchfiles==0.24.0
     # via uvicorn
 wcwidth==0.2.13
