@@ -29,9 +29,7 @@ def test_crud(
     store.add(str_shots, mock_vectors, namespace)  # Test idempotency
 
     query_vector = mock_vectors[0]
-    results = store.list(query_vector, namespace, limit=2)
-    assert len(results) == 2
-    (_d0, s0), (_d1, s1) = results
+    (_d0, s0), (_d1, s1) = store.list(query_vector, namespace, limit=2)
     assert [s0, s1] == str_shots
 
     store.remove([s0.id], namespace)
@@ -55,11 +53,7 @@ def test_structured_io(
     store.add(struct_shots, mock_vectors, namespace)
 
     query_vector = mock_vectors[0]
-    (_d0, s0), (_d1, s1) = store.list(
-        query_vector,
-        namespace,
-        limit=2,
-    )
+    (_d0, s0), (_d1, s1) = store.list(query_vector, namespace, limit=2)
 
     assert [s0, s1] == struct_shots
 
@@ -77,12 +71,10 @@ async def test_async_crud(
     await store.add(str_shots, mock_vectors, namespace)
 
     query_vector = mock_vectors[0]
-    results = await store.list(query_vector, namespace, limit=2)
-    assert len(results) == 2
-    (_d0, s0), (_d1, s1) = results
+    (_d0, s0), (_d1, s1) = await store.list(query_vector, namespace, limit=2)
     assert [s0, s1] == str_shots
 
-    await store.remove([str_shots[0].id], namespace)
+    await store.remove([s0.id], namespace)
     results = await store.list(query_vector, namespace, limit=2)
     assert len(results) == 1
 
@@ -103,10 +95,6 @@ async def test_async_structured_io(
     await store.add(struct_shots, mock_vectors, namespace)
 
     query_vector = mock_vectors[0]
-    (_d0, s0), (_d1, s1) = await store.list(
-        query_vector,
-        namespace,
-        limit=2,
-    )
+    (_d0, s0), (_d1, s1) = await store.list(query_vector, namespace, limit=2)
 
     assert [s0, s1] == struct_shots
