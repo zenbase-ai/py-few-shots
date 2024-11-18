@@ -21,10 +21,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Rye
-        run: |
-          curl -sSf https://rye-up.com/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+      - name: Install the latest version of rye
+        uses: eifinger/setup-rye@v4
 
       - name: Install dependencies
         run: rye sync
