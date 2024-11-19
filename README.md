@@ -35,8 +35,10 @@ poetry add few-shots
 
 ```python
 from few_shots.client import FewShots
-from few_shots.embed.openai import OopenAIEmbed
+from few_shots.embed.openai import OpenAIEmbed
 from few_shots.store.memory import MemoryStore # see below for different vectorstores
+from few_shots.types import Shot
+
 from openai import OpenAI
 
 shots = FewShots(
@@ -48,45 +50,35 @@ shots = FewShots(
     store=MemoryStore()
 )
 
+# Works with strings or dictionaries (for structured inputs/outputs)
 shots.add(
-    inputs="How do I make a pizza?",
-    outputs="1. Make the dough 2. Add toppings 3. Bake at 450°F"
+    inputs=str | dict,
+    outputs=str | dict,
+    id=str | None # For upserts, FewShots will hash the inputs by default to generate a UUID5, or, bring your own str(ID)
 )
 
-# Or use structured inputs/outputs
-shots.add(
-    inputs=dict,
-    outputs=dict,
-)
+# When a user calls your app, you can use the `get` method to retrieve cached, known good examples
+shot: Shot | None = shots.get(inputs=...)
+if not shot:
+    # Get similar examples
+    knn_shots = shots.list(inputs=..., limit=10) # default = 5
 
-# Use your own foreign key for upserts
-shots.add(
-    inputs=...,
-    outputs=...,
-    id=str,
-)
+    for distance, shot in knn_shots:
+        print(f"Found match (distance: {distance:.2f}):")
+        print(f"Q: {shot.inputs}")
+        print(f"A: {shot.outputs}")
 
-# Find similar examples
-best_shots = shots.list(
-    "What's the recipe for pizza?",
-    limit=10, # default = 5
-)
-for distance, shot in results:
-    print(f"Found match (distance: {distance:.2f}):")
-    print(f"Q: {shot.inputs}")
-    print(f"A: {shot.outputs}")
+    # Use with your LLM
+    from few_shots.utils.format import shots_to_messages
 
-# Use with your LLM
-from few_shots.utils.format import shots_to_messages
-
-openai.chat.completions.create(
-    ...,
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        *shots_to_messages(best_shots),
-        {"role": "user", "content": "What's the recipe for pizza?"},
-    ]
-)
+    response = openai.chat.completions.create(
+        ...,
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            *shots_to_messages(knn_shots),
+            {"role": "user", "content": "What's the recipe for pizza?"},
+        ]
+    )
 ```
 
 

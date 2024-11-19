@@ -16,24 +16,23 @@ def client():
 def test_functional_flow(client: FewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
+    shot = Shot(inputs, outputs)
 
     id = client.add(inputs, outputs)
-    assert id == Shot(inputs, outputs).id
+    assert id == shot.id
 
-    results = client.list(inputs, limit=1)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
-
-    results = client.list(inputs, limit=5)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
+    results = [r.shot for r in client.list(inputs)]
+    assert results == [shot]
+    assert shot == client.get(inputs)
 
     client.remove(inputs, outputs)
-    assert [] == client.list(inputs, limit=1)
+    assert [] == client.list(inputs)
+    assert client.get(inputs) is None
 
     client.add(inputs, outputs)
     client.remove(inputs, outputs)
     assert [] == client.list(inputs)
+    assert client.get(inputs) is None
 
 
 def test_dispatch(client: FewShots):
@@ -68,21 +67,22 @@ def test_dispatch(client: FewShots):
 def test_string_flow(client: FewShots):
     inputs = "User question..."
     outputs = "AI answer..."
+    shot = Shot(inputs, outputs)
 
     id = client.add(inputs, outputs)
-    assert id == Shot(inputs, outputs).id
+    assert id == shot.id
 
-    results = client.list(inputs, limit=1)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
+    results = [r.shot for r in client.list(inputs, limit=1)]
+    assert results == [shot]
+    assert client.get(inputs) == shot
 
-    results = client.list(inputs, limit=5)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
+    results = [r.shot for r in client.list(inputs, limit=5)]
+    assert results == [shot]
 
     client.remove(inputs, outputs)
-    assert [] == client.list(inputs, limit=1)
+    assert [] == [r.shot for r in client.list(inputs, limit=1)]
 
     client.add(inputs, outputs)
     client.clear()
-    assert [] == client.list(inputs)
+    assert [] == [r.shot for r in client.list(inputs)]
+    assert client.get(inputs) is None

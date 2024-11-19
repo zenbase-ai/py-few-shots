@@ -7,6 +7,7 @@ from few_shots.types import (
     Datum,
     IO,
     ScoredShot,
+    id_io_value,
     is_io_value,
 )
 
@@ -68,15 +69,55 @@ class FewShots:
         namespace: str = "default",
     ) -> str | list[str]:
         is_io_args = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
-        data: list[Datum] = (
-            [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
-        )
+        data: list[Datum] = [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         shots = [Shot(*datum) for datum in data]
         vectors = self.embed([shot.key for shot in shots])
         self.store.add(shots, vectors, namespace)
 
         ids = [shot.id for shot in shots]
         return ids[0] if is_io_args else ids
+
+    @overload
+    def get(self, inputs: IO, *, namespace: str = "default") -> Shot | None:
+        """Get a single shot from the store, useful for retrieving known good outputs.
+
+        Args:
+            inputs: Input to look up
+            namespace: Namespace to get the example from
+
+        Returns:
+            Shot: The example with the given input
+        """
+
+    @overload
+    def get(self, inputs: list[IO], *, namespace: str = "default") -> list[Shot]:
+        """Get multiple shots from the store, useful for retrieving known good outputs.
+
+        Args:
+            inputs: List of inputs to look up
+            namespace: Namespace to get the examples from
+
+        Returns:
+            list[Shot]: The examples with the given inputs
+        """
+
+    def get(
+        self,
+        inputs: IO | list[IO],
+        *,
+        namespace: str = "default",
+    ) -> Shot | list[Shot]:
+        is_single = not isinstance(inputs, list)
+        if is_single:
+            inputs = [inputs]
+
+        ids = [id_io_value(i) for i in inputs]
+        shots = self.store.get(ids, namespace)
+
+        if is_single:
+            return shots[0] if shots else None
+
+        return shots
 
     @overload
     def remove(
@@ -133,9 +174,7 @@ class FewShots:
         namespace: str = "default",
     ):
         is_io_args = is_io_value(maybe_inputs) and is_io_value(maybe_outputs)
-        data: list[Datum] = (
-            [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
-        )
+        data: list[Datum] = [(maybe_inputs, maybe_outputs, id)] if is_io_args else maybe_inputs
         ids = data if isinstance(data[0], str) else [Shot(*datum).id for datum in data]
         self.store.remove(ids, namespace)
 

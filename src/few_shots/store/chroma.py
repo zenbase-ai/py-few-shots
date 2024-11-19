@@ -11,27 +11,93 @@ from few_shots.types import (
 )
 from few_shots.utils.datetime import utcnow
 
-from .base import Store
+from .base import AsyncStore, Store
+
+__all__ = ["ChromaStore", "AsyncChromaStore"]
 
 
-class ChromaBase(Store):
+class ChromaStore(Store):
+    collection: Collection
+
+    def __init__(self, collection: Collection):
+        self.collection = collection
+
+    def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
+        self.collection.upsert(**ChromaHelper.upsert_shots(shots, vectors, namespace))
+
+    def get(self, ids: list[str], _namespace: str) -> list[Shot]:
+        return ChromaHelper.get_shots(self.collection.get(ids))
+
+    def remove(self, ids: list[str], _namespace: str):
+        self.collection.delete(ids=ids)
+
+    def clear(self, namespace: str):
+        self.collection.delete(where=dict_of(namespace))
+
+    def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
+        return ChromaHelper.query_scored_shots(
+            self.collection.query(
+                query_embeddings=[vector],
+                where=dict_of(namespace),
+                n_results=limit,
+            )
+        )
+
+
+class AsyncChromaStore(AsyncStore):
+    collection: AsyncCollection
+
+    def __init__(self, collection: AsyncCollection):
+        self.collection = collection
+
+    async def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
+        await self.collection.upsert(**ChromaHelper.upsert_shots(shots, vectors, namespace))
+
+    async def get(self, ids: list[str], _namespace: str) -> list[Shot]:
+        return ChromaHelper.get_shots(await self.collection.get(ids))
+
+    async def remove(self, ids: list[str], _namespace: str):
+        await self.collection.delete(ids=ids)
+
+    async def clear(self, namespace: str):
+        await self.collection.delete(where=dict_of(namespace))
+
+    async def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
+        return ChromaHelper.query_scored_shots(
+            await self.collection.query(
+                query_embeddings=[vector],
+                where=dict_of(namespace),
+                n_results=limit,
+            )
+        )
+
+
+class ChromaHelper:
     @staticmethod
-    def _upsert_kwargs(
-        shots: list[Shot], vectors: list[Vector], namespace: str
-    ) -> dict:
+    def upsert_shots(shots: list[Shot], vectors: list[Vector], namespace: str) -> dict:
         updated_at = utcnow()
         return dict(
             ids=[s.id for s in shots],
             embeddings=vectors,
             documents=[s.key for s in shots],
             metadatas=[
-                dict_of(namespace, updated_at, outputs=dump_io_value(s.outputs))
-                for s in shots
+                dict_of(namespace, updated_at, outputs=dump_io_value(s.outputs)) for s in shots
             ],
         )
 
     @staticmethod
-    def _query_to_shots_list(results: dict) -> list[ScoredShot]:
+    def get_shots(results: dict) -> list[Shot]:
+        return [
+            Shot(parse_io_value(inputs), parse_io_value(metadata["outputs"]), id)
+            for (inputs, metadata, id) in zip(
+                results["documents"],
+                results["metadatas"],
+                results["ids"],
+            )
+        ]
+
+    @staticmethod
+    def query_scored_shots(results: dict) -> list[ScoredShot]:
         return [
             ScoredShot(
                 distance,
@@ -44,63 +110,3 @@ class ChromaBase(Store):
                 results["metadatas"][0],
             )
         ]
-
-
-class ChromaStore(ChromaBase):
-    collection: Collection
-
-    def __init__(self, collection: Collection):
-        self.collection = collection
-
-    def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
-        self.collection.upsert(**self._upsert_kwargs(shots, vectors, namespace))
-
-    def remove(self, ids: list[str], _namespace: str):
-        self.collection.delete(ids=ids)
-
-    def clear(self, namespace: str):
-        self.collection.delete(where=dict_of(namespace))
-
-    def list(
-        self,
-        vector: Vector,
-        namespace: str,
-        limit: int,
-    ) -> list[ScoredShot]:
-        return self._query_to_shots_list(
-            self.collection.query(
-                query_embeddings=[vector],
-                where=dict_of(namespace),
-                n_results=limit,
-            )
-        )
-
-
-class AsyncChromaStore(ChromaBase):
-    collection: AsyncCollection
-
-    def __init__(self, collection: AsyncCollection):
-        self.collection = collection
-
-    async def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
-        await self.collection.upsert(**self._upsert_kwargs(shots, vectors, namespace))
-
-    async def remove(self, ids: list[str], _namespace: str):
-        await self.collection.delete(ids=ids)
-
-    async def clear(self, namespace: str):
-        await self.collection.delete(where=dict_of(namespace))
-
-    async def list(
-        self,
-        vector: Vector,
-        namespace: str,
-        limit: int,
-    ) -> list[ScoredShot]:
-        return self._query_to_shots_list(
-            await self.collection.query(
-                query_embeddings=[vector],
-                where=dict_of(namespace),
-                n_results=limit,
-            )
-        )

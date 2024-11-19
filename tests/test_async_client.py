@@ -25,33 +25,34 @@ def client():
 async def test_functional_flow(client: AsyncFewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
+    shot = Shot(inputs, outputs)
 
     id = await client.add(inputs, outputs)
-    assert id == Shot(inputs, outputs).id
+    assert id == shot.id
 
-    results = await client.list(inputs, limit=1)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
-
-    results = await client.list(inputs, limit=5)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
+    results = [r.shot for r in await client.list(inputs)]
+    assert results == [shot]
+    assert shot == await client.get(inputs)
 
     await client.remove(inputs, outputs)
-    assert [] == await client.list(inputs, limit=1)
+    assert [] == await client.list(inputs)
 
     await client.add(inputs, outputs)
     await client.clear()
     assert [] == await client.list(inputs)
+    assert (await client.get(inputs)) is None
 
 
 @pytest.mark.asyncio
 async def test_dispatch(client: AsyncFewShots):
     inputs = {"a": 1}
     outputs = {"b": 2}
+    shot = Shot(inputs, outputs)
 
     id = await client.add(inputs, outputs)
-    assert id == Shot(inputs, outputs).id
+    assert id == shot.id
+    assert shot == await client.get(inputs)
+    assert [shot] == await client.get([inputs])
 
     await client.remove([id])
     assert [] == await client.list(inputs)
@@ -79,17 +80,14 @@ async def test_dispatch(client: AsyncFewShots):
 async def test_string_flow(client: AsyncFewShots):
     inputs = "User question..."
     outputs = "AI answer..."
+    shot = Shot(inputs, outputs)
 
     id = await client.add(inputs, outputs)
-    assert id == Shot(inputs, outputs).id
+    assert id == shot.id
+    assert shot == await client.get(inputs)
 
-    results = await client.list(inputs, limit=1)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
-
-    results = await client.list(inputs, limit=5)
-    results = [r.shot for r in results]
-    assert results == [Shot(inputs, outputs)]
+    results = [s.shot for s in await client.list(inputs, limit=5)]
+    assert [shot] == results
 
     await client.remove(inputs, outputs)
     assert [] == await client.list(inputs, limit=1)
@@ -97,3 +95,4 @@ async def test_string_flow(client: AsyncFewShots):
     await client.add(inputs, outputs)
     await client.clear()
     assert [] == await client.list(inputs)
+    assert (await client.get(inputs)) is None

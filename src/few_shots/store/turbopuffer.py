@@ -8,9 +8,9 @@ from few_shots.utils.datetime import utcnow
 
 from .base import Store
 
-DistanceMetric = TypeVar(
-    "DistanceMetric", bound=Literal["cosine_distance", "euclidean_squared"]
-)
+__all__ = ["DistanceMetric", "TurboPufferStore", "AsyncTurboPufferStore"]
+
+DistanceMetric = TypeVar("DistanceMetric", bound=Literal["cosine_distance", "euclidean_squared"])
 
 
 class TurboPufferStore(Store):
@@ -30,6 +30,9 @@ class TurboPufferStore(Store):
                 "updated_at": [updated_at for _ in shots],
             },
         )
+
+    def get(self, ids: list[str], namespace: str) -> list[Shot]:
+        raise NotImplementedError("TurboPuffer does not support get")
 
     def remove(self, ids: list[str], namespace: str):
         tpuf.Namespace(namespace).delete(ids)

@@ -18,9 +18,7 @@ from few_shots.utils.asyncio import asyncify_class
 from .base import Store
 
 
-MetricType = TypeVar(
-    "MetricType", bound=Literal["L2", "IP", "COSINE", "HAMMING", "JACCARD"]
-)
+MetricType = TypeVar("MetricType", bound=Literal["L2", "IP", "COSINE", "HAMMING", "JACCARD"])
 
 
 class MilvusStore(Store):
@@ -74,6 +72,23 @@ class MilvusStore(Store):
             ],
         )
 
+    def get(self, ids: list[str], namespace: str) -> list[Shot]:
+        response = self.client.query(
+            collection_name=self.collection_name,
+            filter=f"namespace == '{namespace}'",
+            output_fields=["id", "payload"],
+            ids=ids,
+        )[0]
+
+        results: list[Shot] = []
+        for datum in response:
+            metadata = datum.get("entity", {}).get("payload")
+            inputs = parse_io_value(metadata["inputs"])
+            outputs = parse_io_value(metadata["outputs"])
+            results.append(Shot(inputs, outputs, datum["id"]))
+
+        return results
+
     def remove(self, ids: list[str], namespace: str):
         self.client.delete(
             collection_name=self.collection_name,
@@ -105,9 +120,7 @@ class MilvusStore(Store):
             metadata = datum.get("entity", {}).get("payload")
             inputs = parse_io_value(metadata["inputs"])
             outputs = parse_io_value(metadata["outputs"])
-            results.append(
-                ScoredShot(datum["distance"], Shot(inputs, outputs, datum["id"]))
-            )
+            results.append(ScoredShot(datum["distance"], Shot(inputs, outputs, datum["id"])))
 
         return results
 

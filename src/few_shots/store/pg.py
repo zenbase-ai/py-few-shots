@@ -10,6 +10,9 @@ from few_shots.types import ScoredShot, Shot, Vector
 from .base import Store
 
 
+__all__ = ["PGStore", "AsyncPGStore"]
+
+
 DistanceType = TypeVar("DistanceType", bound=Literal["cosine", "l2"])
 
 
@@ -61,8 +64,13 @@ class PGStore(Store):
         with self.connection.cursor() as cursor:
             cursor.executemany(
                 self._sql.upsert(),
-                self._sql.shots_to_upsert_tuples(shots, vectors, namespace),
+                self._sql.upsert_shots(shots, vectors, namespace),
             )
+
+    def get(self, ids: list[str], _namespace: str) -> list[Shot]:
+        with self.connection.cursor() as cursor:
+            cursor.execute(self._sql.select(), (ids,))
+            return self._sql.select_shots(cursor.fetchall())
 
     def remove(self, ids: list[str], _namespace: str):
         with self.connection.cursor() as cursor:
@@ -74,8 +82,8 @@ class PGStore(Store):
 
     def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
         with self.connection.cursor() as cursor:
-            cursor.execute(self._sql.select(), (vector, namespace, limit))
-            return self._sql.tuples_to_scored_shots(cursor.fetchall())
+            cursor.execute(self._sql.query(), (vector, namespace, limit))
+            return self._sql.query_scored_shots(cursor.fetchall())
 
 
 class AsyncPGStore(Store):
@@ -118,8 +126,13 @@ class AsyncPGStore(Store):
         async with self.connection.cursor() as cursor:
             await cursor.executemany(
                 self._sql.upsert(),
-                self._sql.shots_to_upsert_tuples(shots, vectors, namespace),
+                self._sql.upsert_shots(shots, vectors, namespace),
             )
+
+    async def get(self, ids: list[str], _namespace: str) -> list[Shot]:
+        async with self.connection.cursor() as cursor:
+            await cursor.execute(self._sql.select(), (ids,))
+            return self._sql.select_shots(await cursor.fetchall())
 
     async def remove(self, ids: list[str], _namespace: str):
         async with self.connection.cursor() as cursor:
@@ -136,8 +149,8 @@ class AsyncPGStore(Store):
         limit: int,
     ) -> list[ScoredShot]:
         async with self.connection.cursor() as cursor:
-            await cursor.execute(self._sql.select(), (vector, namespace, limit))
-            return self._sql.tuples_to_scored_shots(await cursor.fetchall())
+            await cursor.execute(self._sql.query(), (vector, namespace, limit))
+            return self._sql.query_scored_shots(await cursor.fetchall())
 
 
 class SQLHelper:
@@ -215,7 +228,7 @@ class SQLHelper:
             updated_at = {self.utcnow()};
         """
 
-    def shots_to_upsert_tuples(
+    def upsert_shots(
         self,
         shots: list[Shot],
         vectors: list[Vector],
@@ -234,6 +247,17 @@ class SQLHelper:
     def select(self):
         return f"""\
         SELECT {self.tablename}.id,
+               {self.tablename}.payload
+        FROM {self.schema}.{self.tablename}
+        WHERE {self.tablename}.id = ANY(%s);
+        """
+
+    def select_shots(self, tuples: list[tuple[UUID, dict]]) -> list[Shot]:
+        return [Shot(payload["inputs"], payload["outputs"], str(id)) for (id, payload) in tuples]
+
+    def query(self):
+        return f"""\
+        SELECT {self.tablename}.id,
                {self.tablename}.payload,
                {self.tablename}.vector <-> %s::vector AS distance
         FROM {self.schema}.{self.tablename}
@@ -242,7 +266,7 @@ class SQLHelper:
         LIMIT %s;
         """
 
-    def tuples_to_scored_shots(
+    def query_scored_shots(
         self,
         tuples: list[tuple[UUID, dict, float]],
     ) -> list[ScoredShot]:

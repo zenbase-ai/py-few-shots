@@ -15,24 +15,116 @@ from few_shots.types import (
 )
 from few_shots.utils.datetime import utcnow
 
-from .base import Store
+from .base import AsyncStore, Store
+
+__all__ = ["WeaviateStore", "AsyncWeaviateStore", "VectorDistances"]
 
 
-class WeaviateBase(Store):
+class WeaviateStore(Store):
+    client: WeaviateClient
     collection_name: str
     distance_metric: VectorDistances
 
     def __init__(
         self,
+        client: WeaviateClient,
         collection_name: str,
         distance_metric: VectorDistances = VectorDistances.COSINE,
     ):
+        self.client = client
         self.collection_name = collection_name
         self.distance_metric = distance_metric
 
-    def _create_collection_kwargs(self) -> dict:
+    def setup(self):
+        try:
+            self.collection = self.client.collections.create(
+                **WeaviateHelper.collection_config(self.collection_name, self.distance_metric)
+            )
+        except WeaviateBaseError:
+            self.collection = self.client.collections.get(self.collection_name)
+
+    def teardown(self):
+        self.client.collections.delete(self.collection_name)
+
+    def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
+        self.collection.data.insert_many(WeaviateHelper.upsert_shots(shots, vectors, namespace))
+
+    def get(self, ids: list[str], _namespace: str):
+        return WeaviateHelper.fetch_shots(ids, self.collection.query.fetch_objects_by_ids(ids))
+
+    def remove(self, ids: list[str], _namespace: str):
+        self.collection.data.delete_many(Filter.by_id().contains_any(ids))
+
+    def clear(self, namespace: str):
+        self.collection.data.delete_many(Filter.by_property("namespace").equal(namespace))
+
+    def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
+        return WeaviateHelper.query_scored_shots(
+            self.collection.query.near_vector(
+                vector,
+                filters=Filter.by_property("namespace").equal(namespace),
+                limit=limit,
+            )
+        )
+
+
+class AsyncWeaviateStore(AsyncStore):
+    client: WeaviateAsyncClient
+    collection_name: str
+    distance_metric: VectorDistances
+
+    def __init__(
+        self,
+        client: WeaviateAsyncClient,
+        collection_name: str,
+        distance_metric: VectorDistances = VectorDistances.COSINE,
+    ):
+        self.client = client
+        self.collection_name = collection_name
+        self.distance_metric = distance_metric
+
+    async def setup(self):
+        try:
+            self.collection = await self.client.collections.create(
+                **WeaviateHelper.collection_config(self.collection_name, self.distance_metric)
+            )
+        except WeaviateBaseError:
+            self.collection = await self.client.collections.get(self.collection_name)
+
+    async def teardown(self):
+        await self.client.collections.delete(self.collection_name)
+
+    async def add(self, shots: list[Shot], vectors: list[Vector], namespace: str):
+        await self.collection.data.insert_many(
+            WeaviateHelper.upsert_shots(shots, vectors, namespace)
+        )
+
+    async def get(self, ids: list[str], _namespace: str):
+        return WeaviateHelper.fetch_shots(
+            ids, await self.collection.query.fetch_objects_by_ids(ids)
+        )
+
+    async def remove(self, ids: list[str], _namespace: str):
+        await self.collection.data.delete_many(Filter.by_id().contains_any(ids))
+
+    async def clear(self, namespace: str):
+        await self.collection.data.delete_many(Filter.by_property("namespace").equal(namespace))
+
+    async def list(self, vector: Vector, namespace: str, limit: int) -> list[ScoredShot]:
+        return WeaviateHelper.query_scored_shots(
+            await self.collection.query.near_vector(
+                vector,
+                filters=Filter.by_property("namespace").equal(namespace),
+                limit=limit,
+            )
+        )
+
+
+class WeaviateHelper:
+    @staticmethod
+    def collection_config(collection_name: str, distance_metric: VectorDistances) -> dict:
         return dict(
-            name=self.collection_name,
+            name=collection_name,
             properties=[
                 Property(
                     name="namespace",
@@ -43,13 +135,11 @@ class WeaviateBase(Store):
                 Property(name="outputs", data_type=DataType.TEXT),
                 Property(name="updated_at", data_type=DataType.NUMBER),
             ],
-            vector_index_config=Configure.VectorIndex.hnsw(
-                distance_metric=self.distance_metric
-            ),
+            vector_index_config=Configure.VectorIndex.hnsw(distance_metric=distance_metric),
         )
 
     @staticmethod
-    def _shots_to_data_objects(
+    def upsert_shots(
         shots: list[Shot],
         vectors: list[Vector],
         namespace: str,
@@ -70,7 +160,22 @@ class WeaviateBase(Store):
         ]
 
     @staticmethod
-    def _response_to_shots_list(response: QueryReturnType) -> list[ScoredShot]:
+    def fetch_shots(ids: list[str], response: QueryReturnType) -> list[Shot]:
+        """
+        Weaviate returns objects in a random order, so we need to order them by the ids we requested.
+        """
+        shots = {
+            str(o.uuid): Shot(
+                parse_io_value(o.properties["inputs"]),
+                parse_io_value(o.properties["outputs"]),
+                str(o.uuid),
+            )
+            for o in response.objects
+        }
+        return [shots[id] for id in ids if id in shots]
+
+    @staticmethod
+    def query_scored_shots(response: QueryReturnType) -> list[ScoredShot]:
         return [
             ScoredShot(
                 o.metadata.distance,
@@ -82,115 +187,3 @@ class WeaviateBase(Store):
             )
             for o in response.objects
         ]
-
-
-class WeaviateStore(WeaviateBase):
-    client: WeaviateClient
-
-    def __init__(
-        self,
-        client: WeaviateClient,
-        collection_name: str,
-        distance_metric: VectorDistances = VectorDistances.COSINE,
-    ):
-        super().__init__(collection_name, distance_metric)
-        self.client = client
-
-    def setup(self):
-        try:
-            self.collection = self.client.collections.create(
-                **self._create_collection_kwargs()
-            )
-        except WeaviateBaseError:
-            self.collection = self.client.collections.get(self.collection_name)
-
-    def teardown(self):
-        self.client.collections.delete(self.collection_name)
-
-    def add(
-        self,
-        shots: list[Shot],
-        vectors: list[Vector],
-        namespace: str,
-    ):
-        self.collection.data.insert_many(
-            self._shots_to_data_objects(shots, vectors, namespace)
-        )
-
-    def remove(self, ids: list[str], _namespace: str):
-        self.collection.data.delete_many(Filter.by_id().contains_any(ids))
-
-    def clear(self, namespace: str):
-        self.collection.data.delete_many(
-            Filter.by_property("namespace").equal(namespace)
-        )
-
-    def list(
-        self,
-        vector: Vector,
-        namespace: str,
-        limit: int,
-    ) -> list[ScoredShot]:
-        response = self.collection.query.near_vector(
-            vector,
-            filters=Filter.by_property("namespace").equal(namespace),
-            limit=limit,
-        )
-
-        return self._response_to_shots_list(response)
-
-
-class AsyncWeaviateStore(WeaviateBase):
-    client: WeaviateAsyncClient
-
-    def __init__(
-        self,
-        client: WeaviateAsyncClient,
-        collection_name: str,
-        distance_metric: VectorDistances = VectorDistances.COSINE,
-    ):
-        super().__init__(collection_name, distance_metric)
-        self.client = client
-
-    async def setup(self):
-        try:
-            self.collection = await self.client.collections.create(
-                **self._create_collection_kwargs()
-            )
-        except WeaviateBaseError:
-            self.collection = await self.client.collections.get(self.collection_name)
-
-    async def teardown(self):
-        await self.client.collections.delete(self.collection_name)
-
-    async def add(
-        self,
-        shots: list[Shot],
-        vectors: list[Vector],
-        namespace: str,
-    ):
-        await self.collection.data.insert_many(
-            self._shots_to_data_objects(shots, vectors, namespace)
-        )
-
-    async def remove(self, ids: list[str], _namespace: str):
-        await self.collection.data.delete_many(Filter.by_id().contains_any(ids))
-
-    async def clear(self, namespace: str):
-        await self.collection.data.delete_many(
-            Filter.by_property("namespace").equal(namespace)
-        )
-
-    async def list(
-        self,
-        vector: Vector,
-        namespace: str,
-        limit: int,
-    ) -> list[ScoredShot]:
-        response = await self.collection.query.near_vector(
-            vector,
-            filters=Filter.by_property("namespace").equal(namespace),
-            limit=limit,
-        )
-
-        return self._response_to_shots_list(response)
