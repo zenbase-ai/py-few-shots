@@ -52,14 +52,17 @@ shots = FewShots(
 
 # Works with strings or dictionaries (for structured inputs/outputs)
 shots.add(
-    inputs=str | dict,
-    outputs=str | dict,
-    id=str | None # For upserts, FewShots will hash the inputs by default to generate a UUID5, or, bring your own str(ID)
+    inputs: str | dict = ...,
+    outputs: str | dict = ...,
+    id: str | None = None # For upserts, FewShots will hash the inputs by default to generate a UUID5, or, bring your own str(ID)
 )
 
-# When a user calls your app, you can use the `get` method to retrieve cached, known good examples
-shot: Shot | None = shots.get(inputs=...)
-if not shot:
+def get_response(inputs):
+    # When a user calls your app, you can use the `get` method to retrieve cached, known good examples
+    shot: Shot | None = shots.get(inputs=...)
+    if shot:
+        return shot.outputs
+
     # Get similar examples
     knn_shots = shots.list(inputs=..., limit=10) # default = 5
 
@@ -77,8 +80,13 @@ if not shot:
             {"role": "system", "content": "You are a helpful assistant."},
             *shots_to_messages(knn_shots),
             {"role": "user", "content": "What's the recipe for pizza?"},
-        ]
+        ],
+        response_model=...,
     )
+    outputs = response.choices[0].message.content
+    shots.add(inputs, outputs)
+
+    return outputs
 ```
 
 
